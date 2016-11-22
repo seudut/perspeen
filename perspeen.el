@@ -29,15 +29,21 @@
 (defvar perspeen-mode-map (make-sparse-keymap)
   "Keymap for perspeen-mode.")
 
+(defvar perspeen-ws-switch-hook nil
+  "A hook that's run after `perspeen-switch'.")
+
 (make-variable-frame-local
  (defvar perspeen-modestring nil
    "The string displayed in the modeline representing the perspeen-mode."))
-
 (put 'persp-modestring 'risky-local-variable t)
 
 (make-variable-frame-local
  (defvar perspeen-ws-hash nil
    "The hash storing all workspace in current frame "))
+
+(make-variable-buffer-local
+ (defvar perspeen-current-ws nil
+   "The current workspace"))
 
 
 (cl-defstruct (perspeen-ws-struct
@@ -48,16 +54,40 @@
   ;; (pointer-marker (point-marker)))
   )
 
+(defun perspeen-get-new-ws-name ()
+  "Generate a name for a new workspace "
+  (let ((name))
+    (setq name (concat "ws-" (number-to-string (hash-table-count perspeen-ws-hash))))
+    name))
+	  
+
 (defun perspeen-update-mode-string ()
   "Update perspeen-modestring when perspeen-ws-hash is changed"
   (let ((full-string))
     (maphash (lambda (key value)
-	       (setq full-string (concat full-string key)))
+	       (setq full-string (concat full-string (if (/= 0 (length full-string))
+							 "|") key)))
 	     perspeen-ws-hash)
-    (setq perspeen-modestring full-string))
+    (setq perspeen-modestring (concat "[" full-string "]")))
   ;; update global mode-line
   (unless (memq 'perspeen-modestring global-mode-string)
     (setq global-mode-string (append global-mode-string '(perspeen-modestring)))))
+
+(defun perspeen-create-ws ()
+  "Create a new workspace"
+  (interactive)
+  (perspeen-new-ws-internal (perspeen-get-new-ws-name))
+  (perspeen-update-mode-string))
+
+(defun perspeen-switch-ws (name)
+  "Switch to workspace with name"
+  (setq perspeen-current-ws (gethash name perspeen-ws-hash)))
+
+(defun perspeen-new-ws-internal (name)
+  "Create a new workspace with the name"
+  (let ((new-ws (make-perspeen-ws-struct :name name)))
+    (puthash (perspeen-ws-struct-name new-ws) new-ws perspeen-ws-hash)
+    (setq perspeen-current-ws new-ws)))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
@@ -70,8 +100,7 @@
   	(setq perspeen-ws-hash (make-hash-table :test 'equal :size 10))
 	(setq global-mode-string (or global-mode-string '("")))
 	;; create first workspace and put in into hash
-	(let ((new-ws (make-perspeen-ws-struct :name "ws-1")))
-	  (puthash (perspeen-ws-struct-name new-ws) new-ws perspeen-ws-hash))
+	(perspeen-new-ws-internal (perspeen-get-new-ws-name))
 	;; update perspeen-modestring
 	(perspeen-update-mode-string)
 	;; run the hooks
