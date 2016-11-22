@@ -42,7 +42,22 @@
 
 (cl-defstruct (perspeen-ws-struct
 	       )
-  name)
+  name 
+  ;; (buffer-history buffer-name-history)
+  ;; (window-configuration (current-window-configuration))
+  ;; (pointer-marker (point-marker)))
+  )
+
+(defun perspeen-update-mode-string ()
+  "Update perspeen-modestring when perspeen-ws-hash is changed"
+  (let ((full-string))
+    (maphash (lambda (key value)
+	       (setq full-string (concat full-string key)))
+	     perspeen-ws-hash)
+    (setq perspeen-modestring full-string))
+  ;; update global mode-line
+  (unless (memq 'perspeen-modestring global-mode-string)
+    (setq global-mode-string (append global-mode-string '(perspeen-modestring)))))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
@@ -51,17 +66,19 @@
   :keymap perspeen-mode-map
   (if perspeen-mode
       (progn
+	;; init local variables
   	(setq perspeen-ws-hash (make-hash-table :test 'equal :size 10))
 	(setq global-mode-string (or global-mode-string '("")))
-	(let ((new-ws (make-perspeen-ws-struct :name "first")))
+	;; create first workspace and put in into hash
+	(let ((new-ws (make-perspeen-ws-struct :name "ws-1")))
 	  (puthash (perspeen-ws-struct-name new-ws) new-ws perspeen-ws-hash))
-	(setq perspeen-modestring "first")
-	(unless (memq 'perspeen-modestring global-mode-string)
-	  (setq global-mode-string (append global-mode-string '(perspeen-modestring))))
-	(run-hooks 'perspeen-mode-hook)
-	
-  	)
+	;; update perspeen-modestring
+	(perspeen-update-mode-string)
+	;; run the hooks
+	(run-hooks 'perspeen-mode-hook))
+    ;; clear variables
     (setq global-mode-string (delq 'perspeen-modestring global-mode-string))
     (setq perspeen-ws-hash nil)))
+
 (provide 'perspeen)
 ;;; perspeen.el ends here
