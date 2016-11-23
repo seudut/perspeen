@@ -26,25 +26,23 @@
 
 ;;; Code:
 
-(defvar perspeen-mode-map (make-sparse-keymap)
-  "Keymap for perspeen-mode.")
+(defvar perspeen-mode-map (make-sparse-keymap)  "Keymap for perspeen-mode.")
 
-(defvar perspeen-ws-switch-hook nil
-  "A hook that's run after `perspeen-switch'.")
+(defvar perspeen-ws-switch-hook nil  "A hook that's run after `perspeen-switch'.")
 
-(make-variable-frame-local
- (defvar perspeen-modestring nil
-   "The string displayed in the modeline representing the perspeen-mode."))
+(defun sd/make-variables-frame-local (&rest list)
+  "Make all elements in list as frame local variable"
+  (mapcar (lambda (v)
+	    (make-variable-frame-local v))
+	  list))
+
+(sd/make-variables-frame-local
+ (defvar perspeen-modestring nil "The string displayed in the modeline representing the perspeen-mode.")
+ (defvar perspeen-ws-hash nil "The hash storing all workspace in current frame ")
+ (defvar perspeen-current-ws nil "The current workspace")
+ (defvar perspeen-last-ws nil "The last workspace."))
+
 (put 'persp-modestring 'risky-local-variable t)
-
-(make-variable-frame-local
- (defvar perspeen-ws-hash nil
-   "The hash storing all workspace in current frame "))
-
-(make-variable-buffer-local
- (defvar perspeen-current-ws nil
-   "The current workspace"))
-
 
 (cl-defstruct (perspeen-ws-struct
 	       )
