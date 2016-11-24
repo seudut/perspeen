@@ -40,7 +40,8 @@
  (defvar perspeen-modestring nil "The string displayed in the modeline representing the perspeen-mode.")
  (defvar perspeen-ws-hash nil "The hash storing all workspace in current frame ")
  (defvar perspeen-current-ws nil "The current workspace")
- (defvar perspeen-last-ws nil "The last workspace."))
+ (defvar perspeen-last-ws nil "The last workspace.")
+ (defvar perspeen-max-ws-prefix 1 "The maximal ws prefix"))
 
 (put 'perspeen-modestring 'risky-local-variable t)
 
@@ -62,7 +63,8 @@
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace "
   (let ((name))
-    (setq name (concat " ws-" (number-to-string (hash-table-count perspeen-ws-hash)) " "))
+    (setq name (concat " " (number-to-string perspeen-max-ws-prefix)":ws "))
+    (setq perspeen-max-ws-prefix (+ perspeen-max-ws-prefix 1))
     name))
 	  
 
@@ -93,9 +95,83 @@
   (perspeen-new-ws-internal (perspeen-get-new-ws-name))
   (perspeen-update-mode-string))
 
-(defun perspeen-switch-ws (name)
-  "Switch to workspace with name"
-  (setq perspeen-current-ws (gethash name perspeen-ws-hash)))
+(defun perspeen-get-ws-prefix (ws)
+  "Get the prefix of workspace name"
+  (let ((name)
+	(string))
+    (setq name (perspeen-ws-struct-name ws))
+    (setq string (format "%s" name))
+    (string-to-int (car (split-string string ":")))))
+
+(defun perspeen-get-ws-from-index (index)
+  "Get the workspace from the index prefix"
+  (let ((ws))
+    (maphash (lambda (key value)
+	       (if (= index (perspeen-get-ws-prefix value))
+		   (setq ws value)))
+	     perspeen-ws-hash)
+    ws))
+
+(defun perspeen-get-index-list ()
+  "Get the list with the work space index"
+  (let ((index-list '()))
+    (maphash (lambda (key value)
+	       (setq index-list (append index-list (list (perspeen-get-ws-prefix value)))))
+	     perspeen-ws-hash)
+    index-list))
+
+(defun perspeen-get-neighbour-ws (ws next-or-not)
+  "Get the next or previous ws index "
+  (let ((curr-index)
+	(found nil)
+	(target-index 0)
+	(last)
+	(index-list (perspeen-get-index-list)))
+    (setq curr-index (perspeen-get-ws-prefix ws))
+    (mapcar (lambda (index)
+	      (if (and found next-or-not) 
+		  (setq target-index index)
+		(if (= index curr-index)
+		    (progn
+		      (unless next-or-not
+			(setq target-index last))
+		      (setq found t))))
+	      (setq last index))
+	    index-list)
+    (if (= target-index 0)
+	(if next-or-not
+	    (setq target-index (car index-list))
+	  (setq target-index (car (reverse index-list)))))
+    (perspeen-get-ws-from-index target-index)))
+
+(defun perspeen-next-ws ()
+  "Switch to next workspace"
+  (interactive)
+  (setq perspeen-current-ws (perspeen-get-neighbour-ws perspeen-current-ws t))
+  ;; (let ((curr-name))
+  ;;   (setq curr-name (perspeen-ws-struct-name perspeen-current-ws))
+  ;;   (maphash (lambda (key value)
+  ;; 	       ())
+  ;; 	     perspeen-ws-hash))
+  ;; (setq perspeen-current-ws (gethash " ws-0 " perspeen-ws-hash))
+  ;; (let ((flag nil))
+  ;;   (maphash (lambda (key value)
+  ;; 	       (unless (equal key (perspeen-ws-struct-name perspeen-current-ws))
+  ;; 		 (message "yes")
+  ;; 		 (setq perspeen-current-ws value))
+  ;; 	       ;; (if t
+  ;; 	       ;; 	   (progn
+  ;; 	       ;; 	     (message "yes")
+  ;; 	       ;; 	     (setq perspeen-current-ws value))
+  ;; 	       ;; 	 (if (equal (perspeen-ws-struct-name perspeen-current-ws) key)
+  ;; 	       ;; 	     (setq flag t)))
+  ;; 	       )
+  ;; 	     perspeen-ws-hash))
+  (perspeen-update-mode-string))
+
+;; (defun perspeen-switch-ws (name)
+;;   "Switch to workspace with name"
+;;   (setq perspeen-current-ws (gethash name perspeen-ws-hash)))
 
 (defun perspeen-new-ws-internal (name)
   "Create a new workspace with the name"
@@ -123,6 +199,7 @@
 	(run-hooks 'perspeen-mode-hook))
     ;; clear variables
     (setq global-mode-string (delq 'perspeen-modestring global-mode-string))
+    (setq perspeen-max-ws-prefix 1)
     (setq perspeen-ws-hash nil)))
 
 (provide 'perspeen)
