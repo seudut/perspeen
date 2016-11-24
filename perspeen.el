@@ -42,7 +42,14 @@
  (defvar perspeen-current-ws nil "The current workspace")
  (defvar perspeen-last-ws nil "The last workspace."))
 
-(put 'persp-modestring 'risky-local-variable t)
+(put 'perspeen-modestring 'risky-local-variable t)
+
+(defface perspeen-selected-face
+  '((t (:weight bold :foreground "Black" :background "Red")))
+  "The face used to highlight the current perspeen workspace on the modeline")
+
+(defcustom perspeen-modestring-dividers '("[" "]" "|")
+  "Plist of strings used to c")
 
 (cl-defstruct (perspeen-ws-struct
 	       )
@@ -55,21 +62,30 @@
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace "
   (let ((name))
-    (setq name (concat "ws-" (number-to-string (hash-table-count perspeen-ws-hash))))
+    (setq name (concat " ws-" (number-to-string (hash-table-count perspeen-ws-hash)) " "))
     name))
 	  
 
 (defun perspeen-update-mode-string ()
   "Update perspeen-modestring when perspeen-ws-hash is changed"
-  (let ((full-string))
+  (let ((full-string)
+	(all-names))
     (maphash (lambda (key value)
-	       (setq full-string (concat full-string (if (/= 0 (length full-string))
-							 "|") key)))
+	       (setq all-names (append all-names (list key))))
 	     perspeen-ws-hash)
-    (setq perspeen-modestring (concat "[" full-string "]")))
-  ;; update global mode-line
-  (unless (memq 'perspeen-modestring global-mode-string)
-    (setq global-mode-string (append global-mode-string '(perspeen-modestring)))))
+    (mapcar (lambda (name)
+	      (let ((string-name (format "%s" name))
+		    (prop-name))
+		(if (equal name (perspeen-ws-struct-name perspeen-current-ws))
+		    (setq prop-name (propertize string-name 'face 'perspeen-selected-face))
+		  (setq prop-name (propertize string-name 'mouse-face 'mode-line-highlight)))
+		(setq full-string (append full-string
+					  (list (nth 2 perspeen-modestring-dividers) prop-name)))))
+	    all-names)
+    (setq full-string (cdr full-string))
+    (setq perspeen-modestring (append (list (nth 0 perspeen-modestring-dividers))
+				      full-string
+				      (list (nth 1 perspeen-modestring-dividers))))))
 
 (defun perspeen-create-ws ()
   "Create a new workspace"
@@ -101,6 +117,8 @@
 	(perspeen-new-ws-internal (perspeen-get-new-ws-name))
 	;; update perspeen-modestring
 	(perspeen-update-mode-string)
+	(unless (memq 'perspeen-modestring global-mode-string)
+	  (setq global-mode-string (append global-mode-string '(perspeen-modestring))))
 	;; run the hooks
 	(run-hooks 'perspeen-mode-hook))
     ;; clear variables
