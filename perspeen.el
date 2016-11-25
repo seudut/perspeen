@@ -37,7 +37,7 @@
 
 (defun sd/make-variables-frame-local (&rest list)
   "Make all elements in list as frame local variable"
-  (mapcar (lambda (v)
+  (mapc (lambda (v)
 	    (make-variable-frame-local v))
 	  list))
 
@@ -57,19 +57,17 @@
 (defcustom perspeen-modestring-dividers '("[" "]" "|")
   "Plist of strings used to c")
 
-(cl-defstruct (perspeen-ws-struct
-	       )
-  name 
-  ;; (buffer-history buffer-name-history)
-  ;; (window-configuration (current-window-configuration))
-  ;; (pointer-marker (point-marker)))
-  )
+(cl-defstruct (perspeen-ws-struct)
+  name buffers killed local-variables
+  (buffer-history buffer-name-history)
+  (window-configuration (current-window-configuration))
+  (pointer-marker (point-marker)))
+  
 	  
 
 (defun perspeen-update-mode-string ()
   "Update perspeen-modestring when perspeen-ws-list is changed"
-  (let ((full-string)
-	(all-names))
+  (let ((full-string))
     (mapc (lambda (ws)
 	    (let* ((name (perspeen-ws-struct-name ws))
 		   (string-name (format "%s" name))
