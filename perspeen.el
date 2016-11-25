@@ -128,16 +128,20 @@
 	(last)
 	(index-list (perspeen-get-index-list)))
     (setq curr-index (perspeen-get-ws-prefix ws))
-    (mapcar (lambda (index)
-	      (if (and found next-or-not) 
-		  (setq target-index index)
-		(if (= index curr-index)
+    (catch 'loop-set
+      (mapcar (lambda (index)
+		(if (and found next-or-not)
 		    (progn
-		      (unless next-or-not
-			(setq target-index last))
-		      (setq found t))))
-	      (setq last index))
-	    index-list)
+		      (setq target-index index)
+		      (throw 'loop-set t))
+		  (if (= index curr-index)
+		      (progn
+			(unless next-or-not
+			  (setq target-index last)
+			  (throw 'loop-set t))
+			(setq found t))))
+		(setq last index))
+	      index-list))
     (if (= target-index 0)
 	(if next-or-not
 	    (setq target-index (car index-list))
