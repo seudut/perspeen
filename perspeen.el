@@ -28,6 +28,11 @@
 
 (defvar perspeen-mode-map (make-sparse-keymap)  "Keymap for perspeen-mode.")
 
+(define-key perspeen-mode-map (kbd "s-p") 'perspeen-mode)
+(define-key perspeen-mode-map (kbd "s-c") 'perspeen-create-ws)
+(define-key perspeen-mode-map (kbd "s-n") 'perspeen-next-ws)
+(define-key perspeen-mode-map (kbd "s-p") 'perspeen-previos-ws)
+
 (defvar perspeen-ws-switch-hook nil  "A hook that's run after `perspeen-switch'.")
 
 (defun sd/make-variables-frame-local (&rest list)
@@ -125,23 +130,23 @@
   (let ((curr-index)
 	(found nil)
 	(target-index 0)
-	(last)
+	(last 0)
 	(index-list (perspeen-get-index-list)))
     (setq curr-index (perspeen-get-ws-prefix ws))
     (catch 'loop-set
       (mapcar (lambda (index)
-		(if (and found next-or-not)
-		    (progn
-		      (setq target-index index)
-		      (throw 'loop-set t))
-		  (if (= index curr-index)
-		      (progn
-			(unless next-or-not
-			  (setq target-index last)
-			  (throw 'loop-set t))
-			(setq found t))))
-		(setq last index))
-	      index-list))
+    		(if (and found next-or-not)
+    		    (progn
+    		      (setq target-index index)
+    		      (throw 'loop-set t))
+    		  (if (= index curr-index)
+    		      (progn
+    			(unless next-or-not
+    			  (setq target-index last)
+    			  (throw 'loop-set t))
+    			(setq found t))))
+    		(setq last index))
+    	      index-list))
     (if (= target-index 0)
 	(if next-or-not
 	    (setq target-index (car index-list))
@@ -152,30 +157,13 @@
   "Switch to next workspace"
   (interactive)
   (setq perspeen-current-ws (perspeen-get-neighbour-ws perspeen-current-ws t))
-  ;; (let ((curr-name))
-  ;;   (setq curr-name (perspeen-ws-struct-name perspeen-current-ws))
-  ;;   (maphash (lambda (key value)
-  ;; 	       ())
-  ;; 	     perspeen-ws-hash))
-  ;; (setq perspeen-current-ws (gethash " ws-0 " perspeen-ws-hash))
-  ;; (let ((flag nil))
-  ;;   (maphash (lambda (key value)
-  ;; 	       (unless (equal key (perspeen-ws-struct-name perspeen-current-ws))
-  ;; 		 (message "yes")
-  ;; 		 (setq perspeen-current-ws value))
-  ;; 	       ;; (if t
-  ;; 	       ;; 	   (progn
-  ;; 	       ;; 	     (message "yes")
-  ;; 	       ;; 	     (setq perspeen-current-ws value))
-  ;; 	       ;; 	 (if (equal (perspeen-ws-struct-name perspeen-current-ws) key)
-  ;; 	       ;; 	     (setq flag t)))
-  ;; 	       )
-  ;; 	     perspeen-ws-hash))
   (perspeen-update-mode-string))
 
-;; (defun perspeen-switch-ws (name)
-;;   "Switch to workspace with name"
-;;   (setq perspeen-current-ws (gethash name perspeen-ws-hash)))
+(defun perspeen-previos-ws ()
+  "Switch to previous wrokspace"
+  (interactive)
+  (setq perspeen-current-ws (perspeen-get-neighbour-ws perspeen-current-ws nil))
+  (perspeen-update-mode-string))
 
 (defun perspeen-new-ws-internal (name)
   "Create a new workspace with the name"
