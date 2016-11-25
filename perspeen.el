@@ -43,7 +43,7 @@
 
 (sd/make-variables-frame-local
  (defvar perspeen-modestring nil "The string displayed in the modeline representing the perspeen-mode.")
- (defvar perspeen-ws-hash nil "The hash storing all workspace in current frame ")
+ (defvar perspeen-ws-list nil "The list storing all workspace in current frame ")
  (defvar perspeen-current-ws nil "The current workspace")
  (defvar perspeen-last-ws nil "The last workspace.")
  (defvar perspeen-max-ws-prefix 1 "The maximal ws prefix"))
@@ -64,31 +64,22 @@
   ;; (window-configuration (current-window-configuration))
   ;; (pointer-marker (point-marker)))
   )
-
-(defun perspeen-get-new-ws-name ()
-  "Generate a name for a new workspace "
-  (let ((name))
-    (setq name (concat " " (number-to-string perspeen-max-ws-prefix)":ws "))
-    (setq perspeen-max-ws-prefix (+ perspeen-max-ws-prefix 1))
-    name))
 	  
 
 (defun perspeen-update-mode-string ()
-  "Update perspeen-modestring when perspeen-ws-hash is changed"
+  "Update perspeen-modestring when perspeen-ws-list is changed"
   (let ((full-string)
 	(all-names))
-    (maphash (lambda (key value)
-	       (setq all-names (append all-names (list key))))
-	     perspeen-ws-hash)
-    (mapcar (lambda (name)
-	      (let ((string-name (format "%s" name))
-		    (prop-name))
-		(if (equal name (perspeen-ws-struct-name perspeen-current-ws))
-		    (setq prop-name (propertize string-name 'face 'perspeen-selected-face))
-		  (setq prop-name (propertize string-name 'mouse-face 'mode-line-highlight)))
-		(setq full-string (append full-string
-					  (list (nth 2 perspeen-modestring-dividers) prop-name)))))
-	    all-names)
+    (mapc (lambda (ws)
+	    (let* ((name (perspeen-ws-struct-name ws))
+		   (string-name (format "%s" name))
+		   (prop-name))
+	      (if (equal name (perspeen-ws-struct-name perspeen-current-ws))
+		  (setq prop-name (propertize string-name 'face 'perspeen-selected-face))
+		(setq prop-name (propertize string-name 'mouse-face 'mode-line-highlight)))
+	      (setq full-string (append full-string
+					(list (nth 2 perspeen-modestring-dividers) prop-name)))))
+	  perspeen-ws-list)
     (setq full-string (cdr full-string))
     (setq perspeen-modestring (append (list (nth 0 perspeen-modestring-dividers))
 				      full-string
@@ -97,78 +88,37 @@
 (defun perspeen-create-ws ()
   "Create a new workspace"
   (interactive)
-  (perspeen-new-ws-internal (perspeen-get-new-ws-name))
+  (perspeen-new-ws-internal)
   (perspeen-update-mode-string))
-
-(defun perspeen-get-ws-prefix (ws)
-  "Get the prefix of workspace name"
-  (let ((name)
-	(string))
-    (setq name (perspeen-ws-struct-name ws))
-    (setq string (format "%s" name))
-    (string-to-int (car (split-string string ":")))))
-
-(defun perspeen-get-ws-from-index (index)
-  "Get the workspace from the index prefix"
-  (let ((ws))
-    (maphash (lambda (key value)
-	       (if (= index (perspeen-get-ws-prefix value))
-		   (setq ws value)))
-	     perspeen-ws-hash)
-    ws))
-
-(defun perspeen-get-index-list ()
-  "Get the list with the work space index"
-  (let ((index-list '()))
-    (maphash (lambda (key value)
-	       (setq index-list (append index-list (list (perspeen-get-ws-prefix value)))))
-	     perspeen-ws-hash)
-    index-list))
-
-(defun perspeen-get-neighbour-ws (ws next-or-not)
-  "Get the next or previous ws index "
-  (let ((curr-index)
-	(found nil)
-	(target-index 0)
-	(last 0)
-	(index-list (perspeen-get-index-list)))
-    (setq curr-index (perspeen-get-ws-prefix ws))
-    (catch 'loop-set
-      (mapcar (lambda (index)
-    		(if (and found next-or-not)
-    		    (progn
-    		      (setq target-index index)
-    		      (throw 'loop-set t))
-    		  (if (= index curr-index)
-    		      (progn
-    			(unless next-or-not
-    			  (setq target-index last)
-    			  (throw 'loop-set t))
-    			(setq found t))))
-    		(setq last index))
-    	      index-list))
-    (if (= target-index 0)
-	(if next-or-not
-	    (setq target-index (car index-list))
-	  (setq target-index (car (reverse index-list)))))
-    (perspeen-get-ws-from-index target-index)))
 
 (defun perspeen-next-ws ()
   "Switch to next workspace"
   (interactive)
-  (setq perspeen-current-ws (perspeen-get-neighbour-ws perspeen-current-ws t))
+  (let ((next-ws))
+    (setq next-ws (nth 1 (memq perspeen-current-ws perspeen-ws-list)))
+    (setq perspeen-current-ws (or next-ws (nth 0 perspeen-ws-list))))
   (perspeen-update-mode-string))
 
 (defun perspeen-previos-ws ()
   "Switch to previous wrokspace"
   (interactive)
-  (setq perspeen-current-ws (perspeen-get-neighbour-ws perspeen-current-ws nil))
+  (let ((prev-ws))
+    (setq prev-ws (nth 1 (memq perspeen-current-ws (reverse perspeen-ws-list))))
+    (setq perspeen-current-ws (or prev-ws (nth 0 (reverse perspeen-ws-list)))))
   (perspeen-update-mode-string))
 
-(defun perspeen-new-ws-internal (name)
+
+(defun perspeen-get-new-ws-name ()
+  "Generate a name for a new workspace "
+  (let ((name))
+    (setq name (concat " " (number-to-string perspeen-max-ws-prefix)":ws "))
+    (setq perspeen-max-ws-prefix (+ perspeen-max-ws-prefix 1))
+    name))
+
+(defun perspeen-new-ws-internal ()
   "Create a new workspace with the name"
-  (let ((new-ws (make-perspeen-ws-struct :name name)))
-    (puthash (perspeen-ws-struct-name new-ws) new-ws perspeen-ws-hash)
+  (let ((new-ws (make-perspeen-ws-struct :name (perspeen-get-new-ws-name))))
+    (add-to-list 'perspeen-ws-list new-ws t)
     (setq perspeen-current-ws new-ws)))
 
 ;;;###autoload
@@ -179,10 +129,10 @@
   (if perspeen-mode
       (progn
 	;; init local variables
-  	(setq perspeen-ws-hash (make-hash-table :test 'equal :size 10))
+	(setq perspeen-ws-list '())
 	(setq global-mode-string (or global-mode-string '("")))
 	;; create first workspace and put in into hash
-	(perspeen-new-ws-internal (perspeen-get-new-ws-name))
+	(perspeen-new-ws-internal)
 	;; update perspeen-modestring
 	(perspeen-update-mode-string)
 	(unless (memq 'perspeen-modestring global-mode-string)
@@ -192,7 +142,8 @@
     ;; clear variables
     (setq global-mode-string (delq 'perspeen-modestring global-mode-string))
     (setq perspeen-max-ws-prefix 1)
-    (setq perspeen-ws-hash nil)))
+    (setq perspeen-ws-list nil)
+    ))
 
 (provide 'perspeen)
 ;;; perspeen.el ends here
