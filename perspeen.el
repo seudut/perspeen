@@ -117,7 +117,24 @@
   "Create a new workspace with the name"
   (let ((new-ws (make-perspeen-ws-struct :name (perspeen-get-new-ws-name))))
     (add-to-list 'perspeen-ws-list new-ws t)
-    (setq perspeen-current-ws new-ws)))
+    (setq perspeen-current-ws new-ws))
+  ;; if it the first workspace, use the current buffer list
+  ;; else add new scratch buffer and clear the buffers
+  (if (= 1 (length perspeen-ws-list))
+      (progn
+	(setf (perspeen-ws-struct-buffers perspeen-current-ws) (buffer-list)))
+    (switch-to-buffer (concat "*scratch* (" (perspeen-ws-struct-name perspeen-current-ws) ")"))
+    (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
+    (funcall initial-major-mode)
+    (delete-other-windows)))
+
+(defun perspeen-set-ido-buffers ()
+  "restrict the ido buffers"
+  (print "")
+  (setq ido-temp-list
+	(mapcar (lambda (buffer)
+		  (buffer-name buffer))
+		(perspeen-ws-struct-buffers perspeen-current-ws))))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
@@ -135,13 +152,15 @@
 	(perspeen-update-mode-string)
 	(unless (memq 'perspeen-modestring global-mode-string)
 	  (setq global-mode-string (append global-mode-string '(perspeen-modestring))))
+	(add-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
+	
 	;; run the hooks
 	(run-hooks 'perspeen-mode-hook))
     ;; clear variables
     (setq global-mode-string (delq 'perspeen-modestring global-mode-string))
+    (remove-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
     (setq perspeen-max-ws-prefix 1)
-    (setq perspeen-ws-list nil)
-    ))
+    (setq perspeen-ws-list nil)))
 
 (provide 'perspeen)
 ;;; perspeen.el ends here
