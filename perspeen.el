@@ -140,6 +140,13 @@
 			    buf-name))
 		      ido-temp-list))))
 
+
+(defun perspeen-switch-to-buffer (buf-or-name &optional norecord force-same-window)
+  "Advice of switch to buffer, add current buffer to current workspace"
+  (when buf-or-name
+    (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
+    ))
+
 ;;;###autoload
 (define-minor-mode perspeen-mode
   "perspeen mode"
@@ -156,6 +163,7 @@
 	(perspeen-update-mode-string)
 	(unless (memq 'perspeen-modestring global-mode-string)
 	  (setq global-mode-string (append global-mode-string '(perspeen-modestring))))
+	(advice-add 'switch-to-buffer :after #'perspeen-switch-to-buffer)
 	(add-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
 	
 	;; run the hooks
@@ -163,6 +171,7 @@
     ;; clear variables
     (setq global-mode-string (delq 'perspeen-modestring global-mode-string))
     (remove-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
+    (advice-remove 'switch-to-buffer #'perspeen-switch-to-buffer)
     (setq perspeen-max-ws-prefix 1)
     (setq perspeen-ws-list nil)))
 
