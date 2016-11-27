@@ -126,15 +126,19 @@
     (switch-to-buffer (concat "*scratch* (" (perspeen-ws-struct-name perspeen-current-ws) ")"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
-    (delete-other-windows)))
+    ;; (delete-other-windows)
+    ))
 
 (defun perspeen-set-ido-buffers ()
   "restrict the ido buffers"
-  (print "")
+  ;; modify the ido-temp-list and restrict the ido candidates
+  ;; only add the same buffer in ido-temp-list and current workspace buffers
   (setq ido-temp-list
-	(mapcar (lambda (buffer)
-		  (buffer-name buffer))
-		(perspeen-ws-struct-buffers perspeen-current-ws))))
+	(remq nil
+	      (mapcar (lambda (buf-name)
+			(if (member (get-buffer buf-name) (perspeen-ws-struct-buffers perspeen-current-ws))
+			    buf-name))
+		      ido-temp-list))))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
