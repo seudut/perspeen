@@ -91,6 +91,16 @@
   (perspeen-new-ws-internal)
   (perspeen-update-mode-string))
 
+(defun perspeen-rename-ws (name)
+  "Rename the current workspace"
+  (interactive
+   (list (read-string "Enter the new name: ")))
+  (let ((old-name (perspeen-ws-struct-name perspeen-current-ws))
+	(new-name))
+    (setq new-name (replace-regexp-in-string ":.*$" (concat ":" name " ") old-name))
+    (setf (perspeen-ws-struct-name perspeen-current-ws) new-name))
+  (perspeen-update-mode-string))
+
 (defun perspeen-next-ws ()
   "Switch to next workspace"
   (interactive)
