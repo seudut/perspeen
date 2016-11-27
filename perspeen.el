@@ -34,6 +34,8 @@
 (define-key perspeen-mode-map (kbd "s-p") 'perspeen-previos-ws)
 
 (defvar perspeen-ws-switch-hook nil  "A hook that's run after `perspeen-switch'.")
+(defvar perspeen-ws-before-switch-hook nil "A hook that run before switch workspace")
+(defvar perspeen-ws-after-switch-hook nil "A hook that run after switch workspace")
 
 (defun sd/make-variables-frame-local (&rest list)
   "Make all elements in list as frame local variable"
@@ -94,7 +96,7 @@
   (interactive)
   (let ((next-ws))
     (setq next-ws (nth 1 (memq perspeen-current-ws perspeen-ws-list)))
-    (setq perspeen-current-ws (or next-ws (nth 0 perspeen-ws-list))))
+    (perspeen-switch-ws-internal (or next-ws (nth 0 perspeen-ws-list))))
   (perspeen-update-mode-string))
 
 (defun perspeen-previos-ws ()
@@ -102,9 +104,20 @@
   (interactive)
   (let ((prev-ws))
     (setq prev-ws (nth 1 (memq perspeen-current-ws (reverse perspeen-ws-list))))
-    (setq perspeen-current-ws (or prev-ws (nth 0 (reverse perspeen-ws-list)))))
+    (perspeen-switch-ws-internal (or prev-ws (nth 0 (reverse perspeen-ws-list)))))
   (perspeen-update-mode-string))
 
+(defun perspeen-switch-ws-internal (ws)
+  "Switch to another workspace. save the windows configuration"
+  (unless (equal ws perspeen-current-ws)
+    (run-hooks 'perspeen-ws-before-switch-hook)
+    ;; save the windows configuration
+    (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+    ;; set the current workspace
+    (setq perspeen-current-ws ws)
+    ;; pop up the previous windows configuration
+    (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
+    (run-hooks 'perspeen-ws-after-switch-hook)))
 
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace "
@@ -126,8 +139,7 @@
     (switch-to-buffer (concat "*scratch* (" (perspeen-ws-struct-name perspeen-current-ws) ")"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
-    ;; (delete-other-windows)
-    ))
+    (delete-other-windows)))
 
 (defun perspeen-set-ido-buffers ()
   "restrict the ido buffers"
@@ -144,8 +156,7 @@
 (defun perspeen-switch-to-buffer (buf-or-name &optional norecord force-same-window)
   "Advice of switch to buffer, add current buffer to current workspace"
   (when buf-or-name
-    (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
-    ))
+    (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
