@@ -102,6 +102,29 @@
     (setf (perspeen-ws-struct-name perspeen-current-ws) new-name))
   (perspeen-update-mode-string))
 
+(defun perspeen-ws-eshell (&optional arg)
+  "Create or switch to eshell buffer"
+  (interactive)
+  (let* ((ebufs)
+	 (dir-name (car (last (split-string (perspeen-ws-struct-root-dir perspeen-current-ws)
+					    "/" t))))
+	 (new-eshell-name)
+	 (ii 1))
+    (setq ebufs
+	  (delq nil (mapcar (lambda (buf)
+			      (if (equal (with-current-buffer buf major-mode) 'eshell-mode)
+				  buf))
+			    (perspeen-ws-struct-buffers perspeen-current-ws))))
+    (if (> (length ebufs) 0)
+	(switch-to-buffer (car ebufs))
+      (eshell 'N)
+      (setq new-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
+      (while (get-buffer new-eshell-name)
+	(setq ii (+ ii 1))
+	(setq new-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
+      (rename-buffer new-eshell-name)
+      (push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws)))))
+
 (defun perspeen-change-root-dir (dir)
   "Change the root direcoty of current workspace"
   (interactive
