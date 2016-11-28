@@ -166,7 +166,8 @@
 (defun perspeen-switch-to-buffer (buf-or-name &optional norecord force-same-window)
   "Advice of switch to buffer, add current buffer to current workspace"
   (when buf-or-name
-    (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))))
+    (unless (memq (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
+      (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
