@@ -61,6 +61,7 @@
 
 (cl-defstruct (perspeen-ws-struct)
   name buffers killed local-variables
+  (root-dir default-directory)
   (buffer-history buffer-name-history)
   (window-configuration (current-window-configuration))
   (pointer-marker (point-marker)))
@@ -100,6 +101,13 @@
     (setq new-name (replace-regexp-in-string ":.*$" (concat ":" name " ") old-name))
     (setf (perspeen-ws-struct-name perspeen-current-ws) new-name))
   (perspeen-update-mode-string))
+
+(defun perspeen-change-root-dir (dir)
+  "Change the root direcoty of current workspace"
+  (interactive
+   (list (read-directory-name "Input Dir: ")))
+  (setf (perspeen-ws-struct-root-dir perspeen-current-ws) dir)
+  (message "Root directory of current workspace chagned to %s" (format dir)))
 
 (defun perspeen-next-ws ()
   "Switch to next workspace"
