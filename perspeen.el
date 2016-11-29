@@ -96,6 +96,15 @@
   (perspeen-new-ws-internal)
   (perspeen-update-mode-string))
 
+(defun perspeen-delete-ws ()
+  "Remove current workspace"
+  (interactive)
+  (let ((prev-ws))
+    (setq prev-ws (nth 1 (memq perspeen-current-ws (reverse perspeen-ws-list))))
+    (delq perspeen-current-ws perspeen-ws-list)
+    (perspeen-switch-ws-internal prev-ws))
+  (perspeen-update-mode-string))
+
 (defun perspeen-rename-ws (name)
   "Rename the current workspace"
   (interactive
