@@ -109,6 +109,7 @@
 	 (dir-name (car (last (split-string (perspeen-ws-struct-root-dir perspeen-current-ws)
 					    "/" t))))
 	 (new-eshell-name)
+	 (full-eshell-name)
 	 (ii 1))
     (setq ebufs
 	  (delq nil (mapcar (lambda (buf)
@@ -121,9 +122,10 @@
 	(setq-local default-directory (perspeen-ws-struct-root-dir perspeen-current-ws))
 	(eshell 'N))
       (setq new-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
-      (while (get-buffer new-eshell-name)
+      (setq full-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
+      (while (get-buffer full-eshell-name)
 	(setq ii (+ ii 1))
-	(setq new-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
+	(setq full-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
       (rename-buffer new-eshell-name)
       (push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
