@@ -117,14 +117,14 @@
 			    (perspeen-ws-struct-buffers perspeen-current-ws))))
     (if (> (length ebufs) 0)
 	(switch-to-buffer (car ebufs))
-      (eshell 'N)
+      (with-temp-buffer
+	(setq-local default-directory (perspeen-ws-struct-root-dir perspeen-current-ws))
+	(eshell 'N))
       (setq new-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
       (while (get-buffer new-eshell-name)
 	(setq ii (+ ii 1))
 	(setq new-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
       (rename-buffer new-eshell-name)
-      (insert (concat "cd " (perspeen-ws-struct-root-dir perspeen-current-ws)))
-      (eshell-send-input)
       (push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 (defun perspeen-change-root-dir (dir)
@@ -151,6 +151,12 @@
   (let ((prev-ws))
     (setq prev-ws (nth 1 (memq perspeen-current-ws (reverse perspeen-ws-list))))
     (perspeen-switch-ws-internal (or prev-ws (nth 0 (reverse perspeen-ws-list)))))
+  (perspeen-update-mode-string))
+
+(defun perspeen-goto-ws (index)
+  "Switch to the index workspace"
+  (interactive "p")
+  (perspeen-switch-ws-internal (nth (- index 1) perspeen-ws-list))
   (perspeen-update-mode-string))
 
 (defun perspeen-switch-ws-internal (ws)
