@@ -32,6 +32,10 @@
 (define-key perspeen-mode-map (kbd "s-c") 'perspeen-create-ws)
 (define-key perspeen-mode-map (kbd "s-n") 'perspeen-next-ws)
 (define-key perspeen-mode-map (kbd "s-p") 'perspeen-previos-ws)
+(define-key perspeen-mode-map (kbd "s-1") (lambda () (interactive) (perspeen-goto-ws 1)))
+(define-key perspeen-mode-map (kbd "s-2") (lambda () (interactive) (perspeen-goto-ws 2)))
+(define-key perspeen-mode-map (kbd "s-3") (lambda () (interactive) (perspeen-goto-ws 3)))
+(define-key perspeen-mode-map (kbd "s-4") (lambda () (interactive) (perspeen-goto-ws 4)))
 
 (defvar perspeen-ws-switch-hook nil  "A hook that's run after `perspeen-switch'.")
 (defvar perspeen-ws-before-switch-hook nil "A hook that run before switch workspace")
@@ -120,23 +124,33 @@
 	(switch-to-buffer (car ebufs))
       (with-temp-buffer
 	(setq-local default-directory (perspeen-ws-struct-root-dir perspeen-current-ws))
-	(eshell 'N))
-      (setq new-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
-      (setq full-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
-      (while (get-buffer full-eshell-name)
-	(setq ii (+ ii 1))
-	(setq full-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
-      (rename-buffer new-eshell-name)
-      (push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws)))))
+	(eshell 'N)
+	(setq new-eshell-name (concat eshell-buffer-name "<" dir-name ">"))
+	(setq full-eshell-name new-eshell-name)
+	(while (get-buffer full-eshell-name)
+	  (setq ii (+ ii 1))
+	  (setq full-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
+	(rename-buffer full-eshell-name)
+	(push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws))))))
 
 (defun perspeen-change-root-dir (dir)
   "Change the root direcoty of current workspace"
   (interactive
    (list (read-directory-name "Input Dir: ")))
+  (setq dir (directory-file-name dir))
   (setf (perspeen-ws-struct-root-dir perspeen-current-ws) dir)
   ;; change the default directory of scratch buffer
-  (with-current-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">")
-    (setq-local default-directory dir))
+  (mapc (lambda (buf)
+	  (print buf)
+	  (print (buffer-name buf))
+	  (when (and (buffer-name buf) (string-match "^*scratch" (buffer-name buf)))
+	    (with-current-buffer buf
+	      (setq-local default-directory dir))))
+	(perspeen-ws-struct-buffers perspeen-current-ws))
+  ;; rename current ws
+  (perspeen-rename-ws (car (last
+			    (split-string (perspeen-ws-struct-root-dir perspeen-current-ws) "/" t))))
+  (perspeen-update-mode-string)
   (message "Root directory chagned to %s" (format dir)))
 
 (defun perspeen-next-ws ()
@@ -196,6 +210,7 @@
       (progn
 	(setf (perspeen-ws-struct-buffers perspeen-current-ws) (buffer-list)))
     (switch-to-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">"))
+    (insert (concat ";; " (buffer-name) "\n\n"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
     (delete-other-windows)))
