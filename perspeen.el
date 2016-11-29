@@ -123,6 +123,9 @@
 	(setq ii (+ ii 1))
 	(setq new-eshell-name (concat new-eshell-name "-" (number-to-string ii))))
       (rename-buffer new-eshell-name)
+      (insert (concat "cd " (perspeen-ws-struct-root-dir perspeen-current-ws)))
+      (eshell-send-input)
+      (erase-buffer)
       (push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 (defun perspeen-change-root-dir (dir)
@@ -130,7 +133,10 @@
   (interactive
    (list (read-directory-name "Input Dir: ")))
   (setf (perspeen-ws-struct-root-dir perspeen-current-ws) dir)
-  (message "Root directory of current workspace chagned to %s" (format dir)))
+  ;; change the default directory of scratch buffer
+  (with-current-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">")
+    (setq-local default-directory dir))
+  (message "Root directory chagned to %s" (format dir)))
 
 (defun perspeen-next-ws ()
   "Switch to next workspace"
@@ -177,7 +183,7 @@
   (if (= 1 (length perspeen-ws-list))
       (progn
 	(setf (perspeen-ws-struct-buffers perspeen-current-ws) (buffer-list)))
-    (switch-to-buffer (concat "*scratch* (" (perspeen-ws-struct-name perspeen-current-ws) ")"))
+    (switch-to-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
     (delete-other-windows)))
