@@ -126,7 +126,8 @@
 	 (ii 1))
     (setq ebufs
 	  (delq nil (mapcar (lambda (buf)
-			      (if (equal (with-current-buffer buf major-mode) 'eshell-mode)
+			      (if (and (buffer-live-p buf)
+				       (equal (with-current-buffer buf major-mode) 'eshell-mode))
 				  buf))
 			    (perspeen-ws-struct-buffers perspeen-current-ws))))
     (if (> (length ebufs) 0)
@@ -150,8 +151,6 @@
   (setf (perspeen-ws-struct-root-dir perspeen-current-ws) dir)
   ;; change the default directory of scratch buffer
   (mapc (lambda (buf)
-	  (print buf)
-	  (print (buffer-name buf))
 	  (when (and (buffer-name buf) (string-match "^*scratch" (buffer-name buf)))
 	    (with-current-buffer buf
 	      (setq-local default-directory dir))))
@@ -222,7 +221,9 @@
     (insert (concat ";; " (buffer-name) "\n\n"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
-    (delete-other-windows)))
+    (delete-other-windows)
+    ;; initialize the windows configuration of the new workspace
+    (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))))
 
 (defun perspeen-set-ido-buffers ()
   "restrict the ido buffers"
