@@ -158,20 +158,25 @@
 (defun perspeen-goto-ws (index)
   "Switch to the index workspace"
   (interactive "p")
-  (perspeen-switch-ws-internal (nth (- index 1) perspeen-ws-list))
-  (perspeen-update-mode-string))
+  (if (and (<= index (length perspeen-ws-list))
+	   (> index 0))
+      (progn
+	(perspeen-switch-ws-internal (nth (- index 1) perspeen-ws-list))
+	(perspeen-update-mode-string))
+    (message "No %d workspace found" index)))
 
 (defun perspeen-switch-ws-internal (ws)
   "Switch to another workspace. save the windows configuration"
-  (unless (equal ws perspeen-current-ws)
-    (run-hooks 'perspeen-ws-before-switch-hook)
-    ;; save the windows configuration
-    (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-    ;; set the current workspace
-    (setq perspeen-current-ws ws)
-    ;; pop up the previous windows configuration
-    (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
-    (run-hooks 'perspeen-ws-after-switch-hook)))
+  (when ws
+    (unless (equal ws perspeen-current-ws)
+      (run-hooks 'perspeen-ws-before-switch-hook)
+      ;; save the windows configuration
+      (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+      ;; set the current workspace
+      (setq perspeen-current-ws ws)
+      ;; pop up the previous windows configuration
+      (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
+      (run-hooks 'perspeen-ws-after-switch-hook))))
 
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace "
