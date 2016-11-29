@@ -125,7 +125,6 @@
       (rename-buffer new-eshell-name)
       (insert (concat "cd " (perspeen-ws-struct-root-dir perspeen-current-ws)))
       (eshell-send-input)
-      (erase-buffer)
       (push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 (defun perspeen-change-root-dir (dir)
