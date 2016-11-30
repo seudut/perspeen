@@ -243,6 +243,12 @@
     (unless (memq (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
       (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
+(defun perspeen-display-buffer (buffer-or-name &optional action frame)
+  "Advice of display buffer, add it to the current workspace"
+  (when buffer-or-name
+    (unless (memq (get-buffer buffer-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
+      (push (get-buffer buffer-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
+
 ;;;###autoload
 (define-minor-mode perspeen-mode
   "perspeen mode"
@@ -260,6 +266,7 @@
 	(unless (memq 'perspeen-modestring global-mode-string)
 	  (setq global-mode-string (append global-mode-string '(perspeen-modestring))))
 	(advice-add 'switch-to-buffer :after #'perspeen-switch-to-buffer)
+	(advice-add 'display-buffer :after #'perspeen-display-buffer)
 	(add-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
 	
 	;; run the hooks
@@ -268,6 +275,7 @@
     (setq global-mode-string (delq 'perspeen-modestring global-mode-string))
     (remove-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
     (advice-remove 'switch-to-buffer #'perspeen-switch-to-buffer)
+    (advice-remove 'display-buffer #'perspeen-display-buffer)
     (setq perspeen-max-ws-prefix 1)
     (setq perspeen-ws-list nil)))
 
