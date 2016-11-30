@@ -216,7 +216,12 @@
   ;; else add new scratch buffer and clear the buffers
   (if (= 1 (length perspeen-ws-list))
       (progn
-	(setf (perspeen-ws-struct-buffers perspeen-current-ws) (buffer-list)))
+	(setf (perspeen-ws-struct-buffers perspeen-current-ws)
+	      ;; remove the buffer begins with space, which are invisible
+	      (delq nil (mapcar (lambda (buf)
+				  (unless (string-match "^ " (buffer-name buf))
+				    buf))
+				(buffer-list)))))
     (switch-to-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">"))
     (insert (concat ";; " (buffer-name) "\n\n"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
