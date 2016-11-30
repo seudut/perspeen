@@ -69,7 +69,7 @@
   (root-dir default-directory)
   (buffer-history buffer-name-history)
   (window-configuration (current-window-configuration))
-  (pointer-marker (point-marker)))
+  (point-marker (point-marker)))
   
 	  
 
@@ -193,12 +193,14 @@
   (when ws
     (unless (equal ws perspeen-current-ws)
       (run-hooks 'perspeen-ws-before-switch-hook)
-      ;; save the windows configuration
+      ;; save the windows configuration and point marker
       (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+      (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))
       ;; set the current workspace
       (setq perspeen-current-ws ws)
-      ;; pop up the previous windows configuration
+      ;; pop up the previous windows configuration and point marker
       (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
+      (goto-char (perspeen-ws-struct-point-marker perspeen-current-ws))
       (run-hooks 'perspeen-ws-after-switch-hook))))
 
 (defun perspeen-get-new-ws-name ()
@@ -223,13 +225,15 @@
 				  (unless (string-match "^ " (buffer-name buf))
 				    buf))
 				(buffer-list)))))
+    ;; This is not the first workspace
     (switch-to-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">"))
     (insert (concat ";; " (buffer-name) "\n\n"))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
     (delete-other-windows)
     ;; initialize the windows configuration of the new workspace
-    (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))))
+    (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+    (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
 
 (defun perspeen-set-ido-buffers ()
   "restrict the ido buffers"
