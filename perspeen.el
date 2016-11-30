@@ -28,10 +28,11 @@
 
 ;;* Keymap
 (defvar perspeen-mode-map
-  (let ((map make-sparse-keymap))
+  (let ((map (make-sparse-keymap)))
     (define-key map (kbd "s-c") 'perspeen-create-ws)
     (define-key map (kbd "s-n") 'perspeen-next-ws)
     (define-key map (kbd "s-p") 'perspeen-previous-ws)
+    (define-key map (kbd "s-`") 'perspeen-goto-last-ws)
     (define-key map (kbd "s-e") 'perspeen-ws-eshell)
     map)
   "Keymap for perspeen-mode.")
@@ -178,6 +179,13 @@
     (perspeen-switch-ws-internal (or prev-ws (nth 0 (reverse perspeen-ws-list)))))
   (perspeen-update-mode-string))
 
+(defun perspeen-goto-last-ws ()
+  "Switch to the last workspace"
+  (interactive)
+  (when perspeen-last-ws
+    (perspeen-switch-ws-internal perspeen-last-ws)
+    (perspeen-update-mode-string)))
+
 (defun perspeen-goto-ws (index)
   "Switch to the index workspace"
   (interactive "p")
@@ -196,7 +204,8 @@
       ;; save the windows configuration and point marker
       (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
       (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))
-      ;; set the current workspace
+      ;; set the current and last  workspace
+      (setq perspeen-last-ws perspeen-current-ws)
       (setq perspeen-current-ws ws)
       ;; pop up the previous windows configuration and point marker
       (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
@@ -214,6 +223,7 @@
   "Create a new workspace with the name"
   (let ((new-ws (make-perspeen-ws-struct :name (perspeen-get-new-ws-name))))
     (add-to-list 'perspeen-ws-list new-ws t)
+    (setq perspeen-last-ws perspeen-current-ws)
     (setq perspeen-current-ws new-ws))
   ;; if it the first workspace, use the current buffer list
   ;; else add new scratch buffer and clear the buffers
