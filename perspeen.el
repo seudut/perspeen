@@ -26,25 +26,15 @@
 
 ;;; Code:
 
-(defvar perspeen-mode-map (make-sparse-keymap)  "Keymap for perspeen-mode.")
-
-(defmacro perspeen-define-key (map key func &rest args)
-  "A macro to define key for `perspeen-goto-ws'"
-  `(define-key ,map ,key (lambda () (interactive) (,func ,@args))))
-
-(defcustom perspeen-use-default-keymap nil
-  "When no-nil, use the default keymap for perspeen"
-  :type 'boolean)
-
-(when perspeen-use-default-keymap
-  (define-key perspeen-mode-map (kbd "s-c") 'perspeen-create-ws)
-  (define-key perspeen-mode-map (kbd "s-n") 'perspeen-next-ws)
-  (define-key perspeen-mode-map (kbd "s-p") 'perspeen-previous-ws)
-  (define-key perspeen-mode-map (kbd "s-e") 'perspeen-ws-eshell)
-  ;; super-i to switch to ith workspace
-  (dotimes (ii 9)
-    (perspeen-define-key perspeen-mode-map (kbd (concat "s-" (number-to-string (+ ii 1))))
-			 perspeen-goto-ws (+ ii 1))))
+;;* Keymap
+(defvar perspeen-mode-map
+  (let ((map make-sparse-keymap))
+    (define-key map (kbd "s-c") 'perspeen-create-ws)
+    (define-key map (kbd "s-n") 'perspeen-next-ws)
+    (define-key map (kbd "s-p") 'perspeen-previous-ws)
+    (define-key map (kbd "s-e") 'perspeen-ws-eshell)
+    map)
+  "Keymap for perspeen-mode.")
 
 ;; TODO last workspace
 
