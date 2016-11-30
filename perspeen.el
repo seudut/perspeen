@@ -28,14 +28,25 @@
 
 (defvar perspeen-mode-map (make-sparse-keymap)  "Keymap for perspeen-mode.")
 
-(define-key perspeen-mode-map (kbd "s-p") 'perspeen-mode)
-(define-key perspeen-mode-map (kbd "s-c") 'perspeen-create-ws)
-(define-key perspeen-mode-map (kbd "s-n") 'perspeen-next-ws)
-(define-key perspeen-mode-map (kbd "s-p") 'perspeen-previos-ws)
-(define-key perspeen-mode-map (kbd "s-1") (lambda () (interactive) (perspeen-goto-ws 1)))
-(define-key perspeen-mode-map (kbd "s-2") (lambda () (interactive) (perspeen-goto-ws 2)))
-(define-key perspeen-mode-map (kbd "s-3") (lambda () (interactive) (perspeen-goto-ws 3)))
-(define-key perspeen-mode-map (kbd "s-4") (lambda () (interactive) (perspeen-goto-ws 4)))
+(defmacro perspeen-define-key (map key func &rest args)
+  "A macro to define key for `perspeen-goto-ws'"
+  `(define-key ,map ,key (lambda () (interactive) (,func ,@args))))
+
+(defcustom perspeen-use-default-keymap nil
+  "When no-nil, use the default keymap for perspeen"
+  :type 'boolean)
+
+(when perspeen-use-default-keymap
+  (define-key perspeen-mode-map (kbd "s-c") 'perspeen-create-ws)
+  (define-key perspeen-mode-map (kbd "s-n") 'perspeen-next-ws)
+  (define-key perspeen-mode-map (kbd "s-p") 'perspeen-previous-ws)
+  (define-key perspeen-mode-map (kbd "s-e") 'perspeen-ws-eshell)
+  ;; super-i to switch to ith workspace
+  (dotimes (ii 9)
+    (perspeen-define-key perspeen-mode-map (kbd (concat "s-" (number-to-string (+ ii 1))))
+			 perspeen-goto-ws (+ ii 1))))
+
+;; TODO last workspace
 
 (defvar perspeen-ws-switch-hook nil  "A hook that's run after `perspeen-switch'.")
 (defvar perspeen-ws-before-switch-hook nil "A hook that run before switch workspace")
@@ -169,7 +180,7 @@
     (perspeen-switch-ws-internal (or next-ws (nth 0 perspeen-ws-list))))
   (perspeen-update-mode-string))
 
-(defun perspeen-previos-ws ()
+(defun perspeen-previous-ws ()
   "Switch to previous wrokspace"
   (interactive)
   (let ((prev-ws))
