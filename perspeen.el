@@ -146,7 +146,7 @@
 (defun perspeen-change-root-dir (dir)
   "Change the root direcoty of current workspace"
   (interactive
-   (list (read-directory-name "Input Dir: ")))
+   (list (read-directory-name "Inpu Dir: " default-directory)))
   (setq dir (directory-file-name dir))
   (setf (perspeen-ws-struct-root-dir perspeen-current-ws) dir)
   ;; change the default directory of scratch buffer
