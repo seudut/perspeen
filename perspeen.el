@@ -20,11 +20,49 @@
 
 ;;; Commentary:
 
-;; This package intend to combine perspective and elscreen, make each perspective
-;; has its elscreen tab. To make it's much convenient to work multi-workspace at
+;; This package is intended to combine perspective and elscreen, make each workspace
+;; has its own buffers window-configuration and tabs. The goal is to make Emacs much
+;; convenient to work with multiple workspaces at the same time.
 ;; the same time.
 
 ;;; Code:
+
+(defgroup perspeen nil
+  "A minor mode combining perspeen and elscreen "
+  :group 'frame)
+
+(defface perspeen-selected-face
+  '((t (:weight bold :foreground "Black" :background "Red")))
+  "Face used to highlight the current perspeen workspace on the modeline.")
+
+(defcustom perspeen-modestring-dividers '("[" "]" "|")
+  "Plist of strings used to divide workspace on modeline.")
+
+(defvar perspeen-ws-before-switch-hook nil
+  "Hook run before switch workspace.")
+
+(defvar perspeen-ws-after-switch-hook nil
+  "Hook run after switch workspace.")
+
+(defun sd/make-variables-frame-local (&rest list)
+  "Make all elements in list as frame local variable"
+  (mapc (lambda (v)
+	    (make-variable-frame-local v))
+	  list))
+
+(sd/make-variables-frame-local
+ (defvar perspeen-modestring nil
+   "The string displayed on the modeline representing the perspeen-mode.")
+ (defvar perspeen-ws-list nil
+   "The list storing all workspace in current frame.")
+ (defvar perspeen-current-ws nil
+   "The perspeen structure with current workspace.")
+ (defvar perspeen-last-ws nil
+   "The perspeen structure with last workspace.")
+ (defvar perspeen-max-ws-prefix 1
+   "The prefix number of the workspace name."))
+
+(put 'perspeen-modestring 'risky-local-variable t)
 
 ;;* Keymap
 (defvar perspeen-mode-map
@@ -37,34 +75,6 @@
     map)
   "Keymap for perspeen-mode.")
 
-;; TODO last workspace
-
-(defvar perspeen-ws-switch-hook nil  "A hook that's run after `perspeen-switch'.")
-(defvar perspeen-ws-before-switch-hook nil "A hook that run before switch workspace")
-(defvar perspeen-ws-after-switch-hook nil "A hook that run after switch workspace")
-
-(defun sd/make-variables-frame-local (&rest list)
-  "Make all elements in list as frame local variable"
-  (mapc (lambda (v)
-	    (make-variable-frame-local v))
-	  list))
-
-(sd/make-variables-frame-local
- (defvar perspeen-modestring nil "The string displayed in the modeline representing the perspeen-mode.")
- (defvar perspeen-ws-list nil "The list storing all workspace in current frame ")
- (defvar perspeen-current-ws nil "The current workspace")
- (defvar perspeen-last-ws nil "The last workspace.")
- (defvar perspeen-max-ws-prefix 1 "The maximal ws prefix"))
-
-(put 'perspeen-modestring 'risky-local-variable t)
-
-(defface perspeen-selected-face
-  '((t (:weight bold :foreground "Black" :background "Red")))
-  "The face used to highlight the current perspeen workspace on the modeline")
-
-(defcustom perspeen-modestring-dividers '("[" "]" "|")
-  "Plist of strings used to c")
-
 (cl-defstruct (perspeen-ws-struct)
   name buffers killed local-variables
   (root-dir default-directory)
@@ -73,9 +83,8 @@
   (point-marker (point-marker)))
   
 	  
-
 (defun perspeen-update-mode-string ()
-  "Update perspeen-modestring when perspeen-ws-list is changed"
+  "Update `perspeen-modestring' when `perspeen-ws-list' is changed."
   (let ((full-string))
     (mapc (lambda (ws)
 	    (let* ((name (perspeen-ws-struct-name ws))
@@ -93,13 +102,13 @@
 				      (list (nth 1 perspeen-modestring-dividers))))))
 
 (defun perspeen-create-ws ()
-  "Create a new workspace"
+  "Create a new workspace."
   (interactive)
   (perspeen-new-ws-internal)
   (perspeen-update-mode-string))
 
 (defun perspeen-delete-ws ()
-  "Remove current workspace"
+  "Remove current workspace."
   (interactive)
   (let ((prev-ws))
     (setq prev-ws (nth 1 (memq perspeen-current-ws (reverse perspeen-ws-list))))
@@ -108,7 +117,8 @@
   (perspeen-update-mode-string))
 
 (defun perspeen-rename-ws (name)
-  "Rename the current workspace"
+  "Rename the current workspace. The workspace name begin with a number and
+a comma as the prefix, the command won't change the prefix."
   (interactive
    (list (read-string "Enter the new name: ")))
   (let ((old-name (perspeen-ws-struct-name perspeen-current-ws))
@@ -118,7 +128,7 @@
   (perspeen-update-mode-string))
 
 (defun perspeen-ws-eshell (&optional arg)
-  "Create or switch to eshell buffer"
+  "Create or switch to eshell buffer with current workspace root directory."
   (interactive)
   (let* ((ebufs)
 	 (dir-name (car (last (split-string (perspeen-ws-struct-root-dir perspeen-current-ws)
@@ -146,7 +156,7 @@
 	(push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws))))))
 
 (defun perspeen-change-root-dir (dir)
-  "Change the root direcoty of current workspace"
+  "Change the root direcoty of current workspace."
   (interactive
    (list (read-directory-name "Inpu Dir: " default-directory)))
   (setq dir (directory-file-name dir))
@@ -164,7 +174,7 @@
   (message "Root directory chagned to %s" (format dir)))
 
 (defun perspeen-next-ws ()
-  "Switch to next workspace"
+  "Switch to next workspace."
   (interactive)
   (let ((next-ws))
     (setq next-ws (nth 1 (memq perspeen-current-ws perspeen-ws-list)))
@@ -172,7 +182,7 @@
   (perspeen-update-mode-string))
 
 (defun perspeen-previous-ws ()
-  "Switch to previous wrokspace"
+  "Switch to previous wrokspace."
   (interactive)
   (let ((prev-ws))
     (setq prev-ws (nth 1 (memq perspeen-current-ws (reverse perspeen-ws-list))))
@@ -180,14 +190,14 @@
   (perspeen-update-mode-string))
 
 (defun perspeen-goto-last-ws ()
-  "Switch to the last workspace"
+  "Switch to the last workspace."
   (interactive)
   (when perspeen-last-ws
     (perspeen-switch-ws-internal perspeen-last-ws)
     (perspeen-update-mode-string)))
 
 (defun perspeen-goto-ws (index)
-  "Switch to the index workspace"
+  "Switch to the index workspace. Index is a numeric argument."
   (interactive "p")
   (if (and (<= index (length perspeen-ws-list))
 	   (> index 0))
@@ -197,7 +207,8 @@
     (message "No %d workspace found" index)))
 
 (defun perspeen-switch-ws-internal (ws)
-  "Switch to another workspace. save the windows configuration"
+  "Switch to another workspace. Save the old windows configuration
+and restore the new configuration."
   (when ws
     (unless (equal ws perspeen-current-ws)
       (run-hooks 'perspeen-ws-before-switch-hook)
@@ -213,14 +224,14 @@
       (run-hooks 'perspeen-ws-after-switch-hook))))
 
 (defun perspeen-get-new-ws-name ()
-  "Generate a name for a new workspace "
+  "Generate a name for a new workspace."
   (let ((name))
     (setq name (concat " " (number-to-string perspeen-max-ws-prefix)":ws "))
     (setq perspeen-max-ws-prefix (+ perspeen-max-ws-prefix 1))
     name))
 
 (defun perspeen-new-ws-internal ()
-  "Create a new workspace with the name"
+  "Create a new workspace."
   (let ((new-ws (make-perspeen-ws-struct :name (perspeen-get-new-ws-name))))
     (add-to-list 'perspeen-ws-list new-ws t)
     (setq perspeen-last-ws perspeen-current-ws)
@@ -246,7 +257,7 @@
     (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
 
 (defun perspeen-set-ido-buffers ()
-  "restrict the ido buffers"
+  "Change the variable `ido-temp-list' to restrict the ido buffers candidates."
   ;; modify the ido-temp-list and restrict the ido candidates
   ;; only add the same buffer in ido-temp-list and current workspace buffers
   (setq ido-temp-list
@@ -258,20 +269,20 @@
 
 
 (defun perspeen-switch-to-buffer (buf-or-name &optional norecord force-same-window)
-  "Advice of switch to buffer, add current buffer to current workspace"
+  "Advice of switch to buffer, add the new buffer to the buffer list of current workspace."
   (when buf-or-name
     (unless (memq (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
       (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 (defun perspeen-display-buffer (buffer-or-name &optional action frame)
-  "Advice of display buffer, add it to the current workspace"
+  "Advice of display buffer, add it to the buffer list of current workspace."
   (when buffer-or-name
     (unless (memq (get-buffer buffer-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
       (push (get-buffer buffer-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 ;;;###autoload
 (define-minor-mode perspeen-mode
-  "perspeen mode"
+  "Toggle Perspeen mode on or off."
   :global t
   :keymap perspeen-mode-map
   (if perspeen-mode
