@@ -32,4 +32,7 @@ So the name is also combined from these two package names. `persp-een`.
 + `perspeen-goto-ws` -  switch workspace with a numeric prefix
 + `perspeen-ws-eshell` - start a `eshell` in current workspace
 
+See the screen shot below, like the `perspective`, the workspaces indicator are located on right of the mode line.
+Use `perspeen-selected-face` to change the face of the current selected workspace.
+
 ![perspeen](./screenshot/perspeen.png)
