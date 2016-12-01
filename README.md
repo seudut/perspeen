@@ -14,14 +14,22 @@ good, but it has not tab-persist.  This package, `perspeen`, is intended to comb
 So the name is also combined from these two package names. `persp-een`.
 
 ## Install and config
-1. Download the `perspeen.el`, and put it under the `load-path`
-2. Using [el-get](https://github.com/dimitri/el-get)
++ Download the `perspeen.el`, and put it under the `load-path`
++ Using [el-get](https://github.com/dimitri/el-get)
 
 ``` emacs-lisp
 (el-get-bundle seudut/perspeen
   :features perspeen
   (perspeen-mode))
 ```
-  
 
-## How to use
+## How to use - Commands
+
++ `perspeen-create-ws` - default key binding <kbd>s-c</kbd> create a new workspace 
++ `perspeen-next-ws` -  <kbd>s-n</kbd> switch next workspace
++ `perspeen-previous-ws` -  <kbd>s-p</kbd> switch previous workspace
++ `perspeen-goto-last-ws` -  switch to last workspace
++ `perspeen-goto-ws` -  switch workspace with a numeric prefix
++ `perspeen-ws-eshell` - start a `eshell` in current workspace
+
+![perspeen](./screenshot/perspeen.png)
