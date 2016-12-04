@@ -24,12 +24,49 @@
 
 ;;; Code:
 
+(window-total-width)
+(window-height)
+(window-text-pixel-size)
+(setq window-right-divider-width  20)
+;; (defconst my-header
+;;   "====This is h111ead for test================================================================================================================================================================================")
 
-(defconst my-header "====This is head for test====")
-(setq header-line-format
-      '(:eval (substring my-header
-               (min (length my-header)
-                (window-hscroll)))))
+(window-total-width)
+(window-width)
+(frame-char-height)
+
+(window-header-line-height)
+
+
+(setq header-line-format mode-line-format)
+(setq header-line-format (sd/header-line))
+
+
+
+(defun sd/header-line ()
+  (let* ((bl (or (buffer-file-name) (buffer-name)))
+         (len (length bl) )
+         ;; (width (* (window-total-width) (/ (float 18) 13)))
+	 (width (window-total-width)))
+    ;; (make-string (- (round width) 10) ?-)
+    (make-string (- width 3) ?-)))
+
+
+(mapconcat 'identity '("foo" "bar") " ")
+
+(message (make-string 10 ?*))
+
+(setq header-line-format mode-line-format)
+
+(defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord force-same-window)
+  "Advice to switch buffer, to update header line"
+  (setq header-line-format
+	'(:eval (sd/header-line) ;; (substring my-header
+		;; 	   (min (length my-header)
+		;; 		(window-hscroll)))
+		 )))
+
+(advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
 
 
 (provide 'perspeen-tab)
