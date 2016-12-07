@@ -24,56 +24,56 @@
 
 ;;; Code:
 
-(defun sd/header-line ()
-  (let* ((bl (or (buffer-file-name) (buffer-name)))
-         (len (length bl) )
-         ;; (width (* (window-total-width) (/ (float 18) 13)))
-	 (width (window-total-width)))
-    (when (powerline-selected-window-active)
-      ;; (make-string (- (round width) 10) ?-)
-      (make-string (- width 3) ?*)
-      ;; (my-update-header)
-      )))
+;; (defun sd/header-line ()
+;;   (let* ((bl (or (buffer-file-name) (buffer-name)))
+;;          (len (length bl) )
+;;          ;; (width (* (window-total-width) (/ (float 18) 13)))
+;; 	 (width (window-total-width)))
+;;     (when (powerline-selected-window-active)
+;;       ;; (make-string (- (round width) 10) ?-)
+;;       (make-string (- width 3) ?*)
+;;       ;; (my-update-header)
+;;       )))
 
 
-(defface sd/header-line-face-inactive
-  '((t ;; (:background (face-background 'default))
-     (:inherit mode-line)
-     ))
-  "Face used to header line of inactive windows")
+;; (defface sd/header-line-face-inactive
+;;   '((t ;; (:background (face-background 'default))
+;;      (:inherit mode-line)
+;;      ))
+;;   "Face used to header line of inactive windows")
 
-(defface sd/header-line-face-active
-  '((t ;; (:background (face-background 'default))
-     (:inherit mode-line)
-     ))
-  "Face used to header line of inactive windows")
+;; (defface sd/header-line-face-active
+;;   '((t ;; (:background (face-background 'default))
+;;      (:inherit mode-line)
+;;      ))
+;;   "Face used to header line of inactive windows")
 
 ;; (set-face-attribute 'sd/header-line-face-inactive nil
 ;; 		    :background (face-background 'default))
 ;; (set-face-attribute 'sd/header-line-face-active nil
 ;; 		    :background "red")
 
-(defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord force-same-window)
-  "Advice to switch buffer, to update header line"
-  (setq header-line-format
-  	'(:eval
-  	  ;; (when (powerline-selected-window-active))
-  	  (sd/header-line) ;; (substring my-header
-  	  ;; 	   (min (length my-header)
-  	  ;; 		(window-hscroll)))
-  	  ))
-  ;; (print "=====switch buffer======")
-  (my-update-header))
+;; (defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord force-same-window)
+;;   "Advice to switch buffer, to update header line"
+;;   (setq header-line-format
+;;   	'(:eval
+;;   	  ;; (when (powerline-selected-window-active))
+;;   	  (sd/header-line) ;; (substring my-header
+;;   	  ;; 	   (min (length my-header)
+;;   	  ;; 		(window-hscroll)))
+;;   	  ))
+;;   ;; (print "=====switch buffer======")
+;;   (my-update-header))
 
 ;; (advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
 
 
-(defun sd/other-window (count &optional all-frames)
-  "Advice to other window"
-  ;; (sd/header-line)
-  (my-update-header)
-  ;; (perspeen-tab-switch-to-buffer)
-  )
+;; (defun sd/other-window (count &optional all-frames)
+;;   "Advice to other window"
+;;   ;; (sd/header-line)
+;;   (my-update-header)
+;;   ;; (perspeen-tab-switch-to-buffer)
+;;   )
 
 ;; (advice-add 'other-window :after #'sd/other-window)
 
@@ -91,13 +91,25 @@
 
 (defun sd/get-upper-left-most-window (&optional window)
   "Return the upper-left most window"
-  (let* ((first-window (or window (frame-first-window)))
-	 (right-window (window-in-direction 'right first-window)))
-    (if right-window
-	(sd/get-upper-left-most-window right-window)
-      first-window)))
+  (interactive)
+  (let* ((curr-win (or window (frame-first-window)))
+	 (right-window (window-in-direction 'right curr-win)))
+    (or right-window curr-win))
+  ;; (let* ((first-window (or window (frame-first-window)))
+  ;; 	 (right-window (window-in-direction 'right first-window)))
+  ;;   (if right-window
+  ;; 	(sd/get-upper-left-most-window right-window)
+  ;;     first-window))
+  )
 
-(sd/get-upper-left-most-window)
+(let ((aaa (sd/get-upper-left-most-window)))
+  (print aaa))
+
+(defun sd/test ()
+  "fjiefoj"
+  (interactive)
+  (let ((win (window-in-direction 'right (frame-first-window))))
+    (print win)))
 
 (defun sd/set-header-line-format ()
   "Set the header line format"
@@ -111,69 +123,74 @@
   ;; 		      nil)))))
   ;; 	(window-list))
   (setq-default header-line-format
-  		'(:eval
-  		  (let* ((active (powerline-selected-window-active))
-  			 (first-window (frame-first-window))
-			 (top-left-window (sd/get-upper-left-most-window))
-			 (current-window (selected-window)))
+		'(:eval
+		  (let ((active (powerline-selected-window-active))
+			(first-window (frame-first-window))
+			;; (top-left-window (sd/get-upper-left-most-window))
+			(top-left-window nil)
+			(current-window (selected-window)))
+		    ;; (setq top-left-window (window-in-direction 'right (frame-first-window) t))
+		    (print (buffer-name))
+		    (cond ((eq current-window first-window)
+			   (format "%s" "==first buffer===="))
+			  (t
+			   (format "%s" "wowowo")))))))
 
-  		    (if (equal (selected-window)
-  			       first-window)
-			
-  			(format "%s" "======FIRST======")
-  		      (format "%s" "==nono==="))
-  		    ;; (if active
-  		    ;; 	(format "%s" "============")
-  		    ;;   (format "%s" ""))
-  		    ))))
 
+(setq header-line-format '(:eval "wowo"))
+(setq-default header-line-format '(:eval "--setq-default="))
+(setq-default header-line-format nil)
 (setq header-line-format nil)
 
 
+(sd/set-header-line-format)
 
-
+(length (window-list))
+(mapcar (lambda (buf)
+	  buf)
+	(buffer-list))
+(length (buffer-list))
 
 
 (provide 'perspeen-tab)
 
 
 ;;; perspeen-tab.el ends here
-(defun my-update-header ()
-  (if (powerline-selected-window-active)
-      (setq header-line-format '(:eval `(:propertize  "==active==" face sd/header-line-face-active)))
-    (setq header-line-format '(:eval `(:propertize "|inactive|" face sd/header-line-face-inactive))))
+;; (defun my-update-header ()
+;;   (if (powerline-selected-window-active)
+;;       (setq header-line-format '(:eval `(:propertize  "==active==" face sd/header-line-face-active)))
+;;     (setq header-line-format '(:eval `(:propertize "|inactive|" face sd/header-line-face-inactive))))
 
-  (mapc
-   (lambda (window)
-     (print (buffer-name (window-buffer window)))
-     (with-current-buffer (window-buffer window)
-       ;; don't mess with buffers that don't have a header line
-       (when header-line-format
-         (let (	;; (original-format (get 'header-line-format 'original))
-  	       ;; (original-format `(:propertize "====peli3=====" face 'default))
-  	       (original-format `(:propertize "====peli3====="))
-               ;; (inactive-face 'warning)
-  	       (inactive-face `(:propertize "|||" face sd/header-line-face-inactive))
-  	       ;; (inactive-face 'mode-line-inactive)
-  	       ) ; change this to your favorite inactive header line face
-           ;; if we didn't save original format yet, do it now
-           ;; (when (not original-format)
-           ;;   (put 'header-line-format 'original header-line-format)
-           ;;   (setq original-format header-line-format))
-           ;; check if this window is selected, set faces accordingly
-           (if (powerline-selected-window-active) ;; (eq window (selected-window))
-  	       (progn
-  		 (message "=Activate is==%s===" (format (buffer-name)))
-  		 ;; (setq header-line-format original-format)
-  		 (setq header-line-format '(:eval `(:propertize  "==active==" face sd/header-line-face-active))))
-  	     (message "=No activate is==%s===" (format (buffer-name)))
-  	     ;; (setq header-line-format inactive-face)
-  	     (setq header-line-format '(:eval `(:propertize "|inactive|" face sd/header-line-face-inactive)))
-  	     ;; (print (buffer-name))
-             ;; (setq header-line-format `(:propertize ,original-format face ,inactive-face))
-  	     )))))
-   (window-list))
-  )
+;;   (mapc
+;;    (lambda (window)
+;;      (print (buffer-name (window-buffer window)))
+;;      (with-current-buffer (window-buffer window)
+;;        ;; don't mess with buffers that don't have a header line
+;;        (when header-line-format
+;;          (let (	;; (original-format (get 'header-line-format 'original))
+;;   	       ;; (original-format `(:propertize "====peli3=====" face 'default))
+;;   	       (original-format `(:propertize "====peli3====="))
+;;                ;; (inactive-face 'warning)
+;;   	       (inactive-face `(:propertize "|||" face sd/header-line-face-inactive))
+;;   	       ;; (inactive-face 'mode-line-inactive)
+;;   	       ) ; change this to your favorite inactive header line face
+;;            ;; if we didn't save original format yet, do it now
+;;            ;; (when (not original-format)
+;;            ;;   (put 'header-line-format 'original header-line-format)
+;;            ;;   (setq original-format header-line-format))
+;;            ;; check if this window is selected, set faces accordingly
+;;            (if (powerline-selected-window-active) ;; (eq window (selected-window))
+;;   	       (progn
+;;   		 (message "=Activate is==%s===" (format (buffer-name)))
+;;   		 ;; (setq header-line-format original-format)
+;;   		 (setq header-line-format '(:eval `(:propertize  "==active==" face sd/header-line-face-active))))
+;;   	     (message "=No activate is==%s===" (format (buffer-name)))
+;;   	     ;; (setq header-line-format inactive-face)
+;;   	     (setq header-line-format '(:eval `(:propertize "|inactive|" face sd/header-line-face-inactive)))
+;;   	     ;; (print (buffer-name))
+;;              ;; (setq header-line-format `(:propertize ,original-format face ,inactive-face))
+;;   	     )))))
+;;    (window-list)))
 
 
 ;; (mapc (lambda (window)
