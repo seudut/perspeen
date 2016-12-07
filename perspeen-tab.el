@@ -78,8 +78,6 @@
 ;; (advice-add 'other-window :after #'sd/other-window)
 
 
-
-
 (defface sd/header-line-inactive
   '((t (:inherit mode-line)))
   "Face of header-line inactive")
@@ -89,27 +87,10 @@
   "Face of header-line active")
 
 
-(defun sd/get-upper-left-most-window (&optional window)
+(defun sd/get-upper-left-most-window ()
   "Return the upper-left most window"
-  (interactive)
-  (let* ((curr-win (or window (frame-first-window)))
-	 (right-window (window-in-direction 'right curr-win)))
-    (or right-window curr-win))
-  ;; (let* ((first-window (or window (frame-first-window)))
-  ;; 	 (right-window (window-in-direction 'right first-window)))
-  ;;   (if right-window
-  ;; 	(sd/get-upper-left-most-window right-window)
-  ;;     first-window))
-  )
+  (window-at (frame-width) 0))
 
-(let ((aaa (sd/get-upper-left-most-window)))
-  (print aaa))
-
-(defun sd/test ()
-  "fjiefoj"
-  (interactive)
-  (let ((win (window-in-direction 'right (frame-first-window))))
-    (print win)))
 
 (defun sd/set-header-line-format ()
   "Set the header line format"
@@ -126,24 +107,23 @@
 		'(:eval
 		  (let ((active (powerline-selected-window-active))
 			(first-window (frame-first-window))
-			;; (top-left-window (sd/get-upper-left-most-window))
-			(top-left-window nil)
+			(top-right-window (sd/get-upper-left-most-window))
 			(current-window (selected-window)))
-		    ;; (setq top-left-window (window-in-direction 'right (frame-first-window) t))
-		    (print (buffer-name))
+		    ;; (setq top-right-window (window-in-direction 'right (frame-first-window) nil t t ))
+		    ;; (setq top-right-window (next-window))
+		    ;; (message "%s" (format (buffer-name)))
 		    (cond ((eq current-window first-window)
 			   (format "%s" "==first buffer===="))
+			  ((eq current-window top-right-window)
+			   (format "%s" "---end----"))
 			  (t
 			   (format "%s" "wowowo")))))))
 
 
-(setq header-line-format '(:eval "wowo"))
-(setq-default header-line-format '(:eval "--setq-default="))
-(setq-default header-line-format nil)
+(sd/set-header-line-format)
 (setq header-line-format nil)
 
-
-(sd/set-header-line-format)
+(setq-default mode-line-format nil)
 
 (length (window-list))
 (mapcar (lambda (buf)
