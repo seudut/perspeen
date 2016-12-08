@@ -24,60 +24,6 @@
 
 ;;; Code:
 
-;; (defun sd/header-line ()
-;;   (let* ((bl (or (buffer-file-name) (buffer-name)))
-;;          (len (length bl) )
-;;          ;; (width (* (window-total-width) (/ (float 18) 13)))
-;; 	 (width (window-total-width)))
-;;     (when (powerline-selected-window-active)
-;;       ;; (make-string (- (round width) 10) ?-)
-;;       (make-string (- width 3) ?*)
-;;       ;; (my-update-header)
-;;       )))
-
-
-;; (defface sd/header-line-face-inactive
-;;   '((t ;; (:background (face-background 'default))
-;;      (:inherit mode-line)
-;;      ))
-;;   "Face used to header line of inactive windows")
-
-;; (defface sd/header-line-face-active
-;;   '((t ;; (:background (face-background 'default))
-;;      (:inherit mode-line)
-;;      ))
-;;   "Face used to header line of inactive windows")
-
-;; (set-face-attribute 'sd/header-line-face-inactive nil
-;; 		    :background (face-background 'default))
-;; (set-face-attribute 'sd/header-line-face-active nil
-;; 		    :background "red")
-
-;; (defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord force-same-window)
-;;   "Advice to switch buffer, to update header line"
-;;   (setq header-line-format
-;;   	'(:eval
-;;   	  ;; (when (powerline-selected-window-active))
-;;   	  (sd/header-line) ;; (substring my-header
-;;   	  ;; 	   (min (length my-header)
-;;   	  ;; 		(window-hscroll)))
-;;   	  ))
-;;   ;; (print "=====switch buffer======")
-;;   (my-update-header))
-
-;; (advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
-
-
-;; (defun sd/other-window (count &optional all-frames)
-;;   "Advice to other window"
-;;   ;; (sd/header-line)
-;;   (my-update-header)
-;;   ;; (perspeen-tab-switch-to-buffer)
-;;   )
-
-;; (advice-add 'other-window :after #'sd/other-window)
-
-
 (defface sd/header-line-inactive
   '((t (:inherit mode-line)))
   "Face of header-line inactive")
@@ -94,42 +40,30 @@
 
 (defun sd/set-header-line-format ()
   "Set the header line format"
-  (interactive)
-  ;; (mapc (lambda (window)
-  ;; 	  (with-current-buffer (window-buffer window)
-  ;; 	    (setq header-line-format
-  ;; 		  '(:eval
-  ;; 		    (if (equal (selected-window) (frame-first-window))
-  ;; 			(format "%s" "====First====")
-  ;; 		      nil)))))
-  ;; 	(window-list))
   (setq-default header-line-format
 		'(:eval
-		  (let ((active (powerline-selected-window-active))
-			(first-window (frame-first-window))
-			(top-right-window (sd/get-upper-left-most-window))
-			(current-window (selected-window)))
-		    ;; (setq top-right-window (window-in-direction 'right (frame-first-window) nil t t ))
-		    ;; (setq top-right-window (next-window))
-		    ;; (message "%s" (format (buffer-name)))
+		  (let* ((active (powerline-selected-window-active))
+			 (first-window (frame-first-window))
+			 (top-right-window (sd/get-upper-left-most-window))
+			 (current-window (selected-window))
+			 (lhs (list
+			       (powerline-raw (format "%s" "==first buffer==") 'sd/powerline-active1 'l)))
+			 (rhs (list
+			       (powerline-raw (format-time-string " %I:%M %p ") 'sd/powerline-active1 'r))))
 		    (cond ((eq current-window first-window)
-			   (format "%s" "==first buffer===="))
+			   (concat
+			    (powerline-render lhs)
+			    (powerline-fill 'powerline-inactive1 (powerline-width lhs))))
 			  ((eq current-window top-right-window)
-			   (format "%s" "---end----"))
+			   (concat
+			    (powerline-fill 'powerline-inactive1 (powerline-width rhs))
+			    (powerline-render rhs)))
 			  (t
-			   (format "%s" "wowowo")))))))
-
+			   nil))))))
 
 (sd/set-header-line-format)
-(setq header-line-format nil)
+;; (setq header-line-format nil)
 
-(setq-default mode-line-format nil)
-
-(length (window-list))
-(mapcar (lambda (buf)
-	  buf)
-	(buffer-list))
-(length (buffer-list))
 
 
 (provide 'perspeen-tab)
