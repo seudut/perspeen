@@ -50,16 +50,22 @@
 			       (powerline-raw (format "%s" "==first buffer==") 'sd/powerline-active1 'l)))
 			 (rhs (list
 			       (powerline-raw (format-time-string " %I:%M %p ") 'sd/powerline-active1 'r))))
-		    (cond ((eq current-window first-window)
-			   (concat
-			    (powerline-render lhs)
-			    (powerline-fill 'powerline-inactive1 (powerline-width lhs))))
-			  ((eq current-window top-right-window)
-			   (concat
-			    (powerline-fill 'powerline-inactive1 (powerline-width rhs))
-			    (powerline-render rhs)))
-			  (t
-			   nil))))))
+		    (if (eq first-window top-right-window)
+			(concat
+			 (powerline-render lhs)
+			 (powerline-fill 'powerline-inactive1 (powerline-width rhs))
+			 (powerline-render rhs))
+		      
+		      (cond ((eq current-window first-window)
+			     (concat
+			      (powerline-render lhs)
+			      (powerline-fill 'powerline-inactive1 0)))
+			    ((eq current-window top-right-window)
+			     (concat
+			      (powerline-fill 'powerline-inactive1 (powerline-width rhs))
+			      (powerline-render rhs)))
+			    (t
+			     nil)))))))
 
 (sd/set-header-line-format)
 ;; (setq header-line-format nil)
