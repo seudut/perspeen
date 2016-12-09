@@ -37,6 +37,12 @@
   "Return the upper-left most window"
   (window-at (frame-width) 0))
 
+(defface sssdd/powerline-inactive1
+  '((t (:background "grey11" :inherit mode-line)))
+  "Powerline face 1."
+  :group 'powerline)
+
+
 (defun sd/construct-header-line ()
   "Generate header line"
   (let* ((active (powerline-selected-window-active))
@@ -51,22 +57,22 @@
 					 (car powerline-default-separator-dir))))
 	 (lhs (list
 	       (powerline-raw (format "%s" "==first buffer== ") 'sd/powerline-active1 'l)
-	       (funcall separator-left 'sd/powerline-active1 'powerline-active1)))
+	       (funcall separator-left 'sd/powerline-active1 'sssdd/powerline-inactive1)))
 	 (rhs (list
-	       (funcall separator-right  'powerline-active1 'sd/powerline-active1)
+	       (funcall separator-right 'sssdd/powerline-inactive1 'sd/powerline-active1)
 	       (powerline-raw (format-time-string " %Y-%m-%d %I:%M %p %a ") 'sd/powerline-active1 'r))))
-     (cond ((eq current-window first-window)
+    (cond ((eq current-window first-window)
 	   (if (eq first-window top-right-window)
 	       (concat
 		(powerline-render lhs)
-		(powerline-fill 'powerline-active1 (powerline-width rhs))
+		(powerline-fill 'sssdd/powerline-inactive1 (powerline-width rhs))
 		(powerline-render rhs))
 	     (concat
 	      (powerline-render lhs)
-	      (powerline-fill 'powerline-active1 0))))
+	      (powerline-fill 'sssdd/powerline-inactive1 0))))
 	  ((eq current-window top-right-window)
 	   (concat
-	    (powerline-fill 'powerline-active1 (powerline-width rhs))
+	    (powerline-fill 'sssdd/powerline-inactive1 (powerline-width rhs))
 	    (powerline-render rhs)))
 	  (t
 	   nil))))
@@ -77,37 +83,35 @@
       (setq header-line-format
 		    '(:eval
 		      (sd/construct-header-line)))
-    (setq header-line-format
+    (setq-default header-line-format
 		    '(:eval
 		      (sd/construct-header-line)))))
 
 (sd/set-header-line-format)
 ;; (setq header-line-format nil)
 
-(defun sd/switch-to-buffer-header-line (buf-or-name &optional norecord force-same-window)
-  "Advice"
-  (when buf-or-name
-    (message "====switch--buffer===")
-    (sd/set-header-line-format)))
+;; (defun sd/switch-to-buffer-header-line (buf-or-name &optional norecord force-same-window)
+;;   "Advice"
+;;   (when buf-or-name
+;;     (sd/set-header-line-format)))
 ;; (advice-add 'switch-to-buffer :after #'sd/switch-to-buffer-header-line)
+
+(add-hook 'post-command-hook (lambda ()
+			       (sd/set-header-line-format t)))
 
 ;; (add-hook 'after-change-major-mode-hook #'sd/set-header-line-format)
 
-(defun sd/haha ()
-  "jfieojfo"
-  (message "-----test------"))
-
 (add-hook 'change-major-mode-hook #'sd/set-header-line-format)
 
-(mapc (lambda (window)
-	(with-selected-window window
-	  (sd/set-header-line-format)))
-      (window-list))
+;; (mapc (lambda (window)
+;; 	(with-selected-window window
+;; 	  (sd/set-header-line-format)))
+;;       (window-list))
 
-(force-window-update t)
-(walk-windows (lambda (window)
-		(with-selected-window window
-		  (sd/set-header-line-format t))))
+;; (force-window-update t)
+;; (walk-windows (lambda (window)
+;; 		(with-selected-window window
+;; 		  (sd/set-header-line-format t))))
 
 (provide 'perspeen-tab)
 
