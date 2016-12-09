@@ -96,12 +96,11 @@
 ;;     (sd/set-header-line-format)))
 ;; (advice-add 'switch-to-buffer :after #'sd/switch-to-buffer-header-line)
 
-(add-hook 'post-command-hook (lambda ()
-			       (sd/set-header-line-format t)))
+(add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
 
 ;; (add-hook 'after-change-major-mode-hook #'sd/set-header-line-format)
 
-(add-hook 'change-major-mode-hook #'sd/set-header-line-format)
+;; (add-hook 'change-major-mode-hook #'sd/set-header-line-format)
 
 ;; (mapc (lambda (window)
 ;; 	(with-selected-window window
