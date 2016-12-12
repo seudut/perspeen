@@ -44,10 +44,7 @@
 
 (make-variable-frame-local
  (defvar perspeen-tab-confs nil
-   "The configurations of all tabs
-((tab1 . conf1) (tab2 . conf2) ... (tabn . confn))
-
-"))
+   "The configurations of all tabs."))
 
 (defun perspeen-tab-set-tabs-configuration ()
   "Set the configuration of tabs."
@@ -56,7 +53,8 @@
 
 (defun perspeen-tab-new-tab-internal ()
   "New tabs."
-  ())
+  (let ((tab-conf nil))
+    ()))
 
 (defun perspeen-tab-create-tab ()
   "Create a new tab."
@@ -112,15 +110,12 @@
 
 (add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
 
-
-
-
 ;;;###autoload
 
 (defun perspeen-tab-start ()
   "Start perspeen tab."
   (interactive)
-  ())
+  (setq perspeen-tab-confs nil))
 
 (provide 'perspeen-tab)
 ;;; perspeen-tab.el ends here
