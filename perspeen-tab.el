@@ -43,7 +43,7 @@
   :group 'powerline)
 
 (make-variable-frame-local
- (defvar perspeen-tab-confs nil
+ (defvar perspeen-tab-configurations nil
    "The configurations of all tabs."))
 
 (defun perspeen-tab-set-tabs-configuration ()
@@ -115,7 +115,7 @@
 (defun perspeen-tab-start ()
   "Start perspeen tab."
   (interactive)
-  (setq perspeen-tab-confs nil))
+  (setq perspeen-tab-configurations nil))
 
 (provide 'perspeen-tab)
 ;;; perspeen-tab.el ends here
