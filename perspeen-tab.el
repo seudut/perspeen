@@ -44,21 +44,30 @@
 
 (make-variable-frame-local
  (defvar perspeen-tab-configurations nil
-   "The configurations of all tabs."))
+   "The configurations of all tabs.
+It has all the tabs, which tab has a property list of
+window-configuration and point-mark"))
 
 (defun perspeen-tab-set-tabs-configuration ()
   "Set the configuration of tabs."
   ())
 
-
+;; a perspeen-tab uninterned symbol has property list
+;; window-configuration, point-mark
 (defun perspeen-tab-new-tab-internal ()
   "New tabs."
-  (let ((tab-conf nil))
-    ()))
+  (let ((tab (make-symbol "perspeen-tab"))
+	(win-conf (current-window-configuration)))
+    (put tab 'window-configuration win-conf)
+    (push tab perspeen-tab-configurations)))
 
 (defun perspeen-tab-create-tab ()
   "Create a new tab."
   (interactive)
+  (perspeen-tab-new-tab-internal))
+
+(defun perspeen-update-tabs ()
+  "Update the tabs"
   ())
 
 
@@ -115,7 +124,8 @@
 (defun perspeen-tab-start ()
   "Start perspeen tab."
   (interactive)
-  (setq perspeen-tab-configurations nil))
+  (setq perspeen-tab-configurations nil)
+  (perspeen-tab-new-tab-internal))
 
 (provide 'perspeen-tab)
 ;;; perspeen-tab.el ends here
