@@ -70,6 +70,12 @@ window-configuration and point-mark"))
   "Update the tabs"
   ())
 
+;; (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
+;;   "Config the left of header line with tabs."
+;;   (let ((header-left))
+;;     (mapc (lambda (tab)
+;; 	    ())
+;; 	  perspeen-tab-configurations)))
 
 (defun sd/construct-header-line ()
   "Generate header line"
@@ -84,8 +90,20 @@ window-configuration and point-mark"))
 					 (powerline-current-separator)
 					 (car powerline-default-separator-dir))))
 	 (lhs (list
+	       ;; (mapc)
+	       (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
+	       (funcall separator-left 'powerline-active1 'sd/powerline-active1)
+	       
 	       (powerline-raw (format "%s" "==first buffer== ") 'sd/powerline-active1 'l)
-	       (funcall separator-left 'sd/powerline-active1 'sssdd/powerline-inactive1)))
+	       (funcall separator-left 'sd/powerline-active1 'sssdd/powerline-inactive1)
+	       
+	       (powerline-raw (format "%s" "==first buffer== ") 'sssdd/powerline-inactive1 'l)
+	       (funcall separator-left 'sssdd/powerline-inactive1 'powerline-active1)
+	       
+	       (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
+	       (funcall separator-left 'powerline-active1 'sssdd/powerline-inactive1)
+
+	       ))
 	 (rhs (list
 	       (funcall separator-right 'sssdd/powerline-inactive1 'sd/powerline-active1)
 	       (powerline-raw (format-time-string " %Y-%m-%d %I:%M %p %a ") 'sd/powerline-active1 'r))))
