@@ -48,18 +48,32 @@
 It has all the tabs, which tab has a property list of
 window-configuration and point-mark"))
 
+(cl-defstruct (perspeen-tab-conf)
+  tabs
+  (current-tab 0))
+
+(defun perspeen-tab-get-tabs ()
+  "Get tabs in perspeen-tab-configurations"
+  (perspeen-tab-conf-tabs perspeen-tab-configurations))
+
+(defun perspeen-tab-get-current-tab-index ()
+  "Get current tab in perspeen-tab-configurations"
+  (perspeen-tab-conf-current-tab perspeen-tab-configurations))
+
 (defun perspeen-tab-set-tabs-configuration ()
   "Set the configuration of tabs."
   ())
 
+
 ;; a perspeen-tab uninterned symbol has property list
 ;; window-configuration, point-mark
+
 (defun perspeen-tab-new-tab-internal ()
   "New tabs."
   (let ((tab (make-symbol "perspeen-tab"))
 	(win-conf (current-window-configuration)))
     (put tab 'window-configuration win-conf)
-    (push tab perspeen-tab-configurations)))
+    (push tab (perspeen-tab-conf-tabs perspeen-tab-configurations))))
 
 (defun perspeen-tab-create-tab ()
   "Create a new tab."
@@ -70,15 +84,10 @@ window-configuration and point-mark"))
   "Update the tabs"
   ())
 
-(defun perspeen-tab-get-current-tab ()
-  "Return the current tab."
-  (nth (- (length perspeen-tab-configurations) 2) perspeen-tab-configurations))
-
 
 (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
   "Config the left of header line with tabs."
-  (let ((ii 1)
-	(lhs nil)
+  (let ((lhs nil)
 	(separator-left (intern (format "powerline-%s-%s"
 					(powerline-current-separator)
 					(car powerline-default-separator-dir))))
@@ -88,22 +97,21 @@ window-configuration and point-mark"))
 	(face-list nil))
     
     (push inacted-face face-list)
-    (push face1 face-list)
-    (dotimes (var (- (length perspeen-tab-configurations) 1))
+    (dotimes (var (length (perspeen-tab-get-tabs)))
       (push (cond ((eq (car face-list) face1) inacted-face)
 		  (t face1))
 	    face-list))
-
-    (setf (nth (- (length perspeen-tab-configurations) 1) face-list) selected-face)
     
-    (dolist (tab perspeen-tab-configurations)
+    (setf (nth (- (length (perspeen-tab-get-tabs)) (perspeen-tab-get-current-tab-index) 1) face-list)
+	  selected-face)
+    
+    (dolist (tab (perspeen-tab-get-tabs))
       (let ((current-face (pop face-list)))
 	(setq lhs
 	      (append lhs
 		      (list
-		       (powerline-raw (format "%s" (concat "===first buffer===" (number-to-string ii))) current-face 'l)
-		       (funcall separator-left current-face (car face-list))))))
-      (setq ii (+ ii 1)))
+		       (powerline-raw (format "%s" (concat "===first buffer===" " ")) current-face 'l)
+		       (funcall separator-left current-face (car face-list)))))))
     lhs))
 	 
 
@@ -160,7 +168,7 @@ window-configuration and point-mark"))
 (defun perspeen-tab-start ()
   "Start perspeen tab."
   (interactive)
-  (setq perspeen-tab-configurations nil)
+  (setq perspeen-tab-configurations (make-perspeen-tab-conf))
   (perspeen-tab-new-tab-internal))
 
 (provide 'perspeen-tab)
