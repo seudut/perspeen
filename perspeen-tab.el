@@ -70,12 +70,39 @@ window-configuration and point-mark"))
   "Update the tabs"
   ())
 
-;; (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
-;;   "Config the left of header line with tabs."
-;;   (let ((header-left))
-;;     (mapc (lambda (tab)
-;; 	    ())
-;; 	  perspeen-tab-configurations)))
+(defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
+  "Config the left of header line with tabs."
+  (let ((ii 1)
+	(lhs nil)
+	(separator-left (intern (format "powerline-%s-%s"
+					(powerline-current-separator)
+					(car powerline-default-separator-dir))))
+	(face1 'powerline-active1)
+	(selected-face 'sd/powerline-active1)
+	(inacted-face 'sssdd/powerline-inactive1))
+    ;; (list
+    ;;  (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
+    ;;  (funcall separator-left 'powerline-active1 'sd/powerline-active1)
+	       
+    ;;  (powerline-raw (format "%s" "==first buffer== ") 'sd/powerline-active1 'l)
+    ;;  (funcall separator-left 'sd/powerline-active1 'sssdd/powerline-inactive1)
+	       
+    ;;  (powerline-raw (format "%s" "==first buffer== ") 'sssdd/powerline-inactive1 'l)
+    ;;  (funcall separator-left 'sssdd/powerline-inactive1 'powerline-active1)
+	       
+    ;;  (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
+    ;;  (funcall separator-left 'powerline-active1 'sssdd/powerline-inactive1))
+    ;; (setq lhs (list
+    ;; 	       (powerline-raw (format "%s" "===first buffer===") 'powerline-active1 'l)
+    ;; 	       (funcall separator-left 'powerline-active1 'sd/powerline-active1)))
+    (dolist (tab (reverse perspeen-tab-configurations))
+      (setq lhs (append lhs
+			(list
+			 (powerline-raw (format "%s" (concat "===first buffer===" (number-to-string ii))) 'powerline-active1 'l)
+			 (funcall separator-left 'powerline-active1 'sd/powerline-active1))))
+      (setq ii (+ ii 1)))
+    lhs))
+	 
 
 (defun sd/construct-header-line ()
   "Generate header line"
@@ -89,24 +116,12 @@ window-configuration and point-mark"))
 	 (separator-left (intern (format "powerline-%s-%s"
 					 (powerline-current-separator)
 					 (car powerline-default-separator-dir))))
-	 (lhs (list
-	       ;; (mapc)
-	       (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
-	       (funcall separator-left 'powerline-active1 'sd/powerline-active1)
-	       
-	       (powerline-raw (format "%s" "==first buffer== ") 'sd/powerline-active1 'l)
-	       (funcall separator-left 'sd/powerline-active1 'sssdd/powerline-inactive1)
-	       
-	       (powerline-raw (format "%s" "==first buffer== ") 'sssdd/powerline-inactive1 'l)
-	       (funcall separator-left 'sssdd/powerline-inactive1 'powerline-active1)
-	       
-	       (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
-	       (funcall separator-left 'powerline-active1 'sssdd/powerline-inactive1)
-
-	       ))
-	 (rhs (list
+	 (lhs  (perspeen-tab-header-line-left-tabs 1 2 4))
+	 
+	  (rhs (list
 	       (funcall separator-right 'sssdd/powerline-inactive1 'sd/powerline-active1)
 	       (powerline-raw (format-time-string " %Y-%m-%d %I:%M %p %a ") 'sd/powerline-active1 'r))))
+    
     (cond ((eq current-window first-window)
 	   (if (eq first-window top-right-window)
 	       (concat
