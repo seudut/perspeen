@@ -70,6 +70,11 @@ window-configuration and point-mark"))
   "Update the tabs"
   ())
 
+(defun perspeen-tab-get-current-tab ()
+  "Return the current tab."
+  (nth (- (length perspeen-tab-configurations) 2) perspeen-tab-configurations))
+
+
 (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
   "Config the left of header line with tabs."
   (let ((ii 1)
@@ -79,27 +84,25 @@ window-configuration and point-mark"))
 					(car powerline-default-separator-dir))))
 	(face1 'powerline-active1)
 	(selected-face 'sd/powerline-active1)
-	(inacted-face 'sssdd/powerline-inactive1))
-    ;; (list
-    ;;  (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
-    ;;  (funcall separator-left 'powerline-active1 'sd/powerline-active1)
-	       
-    ;;  (powerline-raw (format "%s" "==first buffer== ") 'sd/powerline-active1 'l)
-    ;;  (funcall separator-left 'sd/powerline-active1 'sssdd/powerline-inactive1)
-	       
-    ;;  (powerline-raw (format "%s" "==first buffer== ") 'sssdd/powerline-inactive1 'l)
-    ;;  (funcall separator-left 'sssdd/powerline-inactive1 'powerline-active1)
-	       
-    ;;  (powerline-raw (format "%s" "==first buffer== ") 'powerline-active1 'l)
-    ;;  (funcall separator-left 'powerline-active1 'sssdd/powerline-inactive1))
-    ;; (setq lhs (list
-    ;; 	       (powerline-raw (format "%s" "===first buffer===") 'powerline-active1 'l)
-    ;; 	       (funcall separator-left 'powerline-active1 'sd/powerline-active1)))
-    (dolist (tab (reverse perspeen-tab-configurations))
-      (setq lhs (append lhs
-			(list
-			 (powerline-raw (format "%s" (concat "===first buffer===" (number-to-string ii))) 'powerline-active1 'l)
-			 (funcall separator-left 'powerline-active1 'sd/powerline-active1))))
+	(inacted-face 'sssdd/powerline-inactive1)
+	(face-list nil))
+    
+    (push inacted-face face-list)
+    (push face1 face-list)
+    (dotimes (var (- (length perspeen-tab-configurations) 1))
+      (push (cond ((eq (car face-list) face1) inacted-face)
+		  (t face1))
+	    face-list))
+
+    (setf (nth (- (length perspeen-tab-configurations) 1) face-list) selected-face)
+    
+    (dolist (tab perspeen-tab-configurations)
+      (let ((current-face (pop face-list)))
+	(setq lhs
+	      (append lhs
+		      (list
+		       (powerline-raw (format "%s" (concat "===first buffer===" (number-to-string ii))) current-face 'l)
+		       (funcall separator-left current-face (car face-list))))))
       (setq ii (+ ii 1)))
     lhs))
 	 
