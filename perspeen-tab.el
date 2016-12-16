@@ -64,10 +64,6 @@ window-configuration and point-mark"))
   "Set the configuration of tabs."
   ())
 
-
-;; a perspeen-tab uninterned symbol has property list
-;; window-configuration, point-mark
-
 (defun perspeen-tab-new-tab-internal ()
   "New tabs."
   (let ((tab (make-symbol "perspeen-tab"))
@@ -80,9 +76,29 @@ window-configuration and point-mark"))
   (interactive)
   (perspeen-tab-new-tab-internal))
 
-(defun perspeen-update-tabs ()
-  "Update the tabs"
-  ())
+;; (defun perspeen-update-tabs ()
+;;   "Update the tabs"
+;;   ())
+
+(defun perspeen-tab-switch-internal (index)
+  "Switch tabs."
+  (setf (perspeen-tab-conf-current-tab perspeen-tab-configurations) index))
+
+(defun perspeen-tab-next ()
+  "Switch to next tab."
+  (interactive)
+  (let ((next (+ (perspeen-tab-get-current-tab-index) 1)))
+    (if (>= next (length (perspeen-tab-get-tabs)))
+	(setq next 0))
+    (perspeen-tab-switch-internal next)))
+
+(defun perspeen-tab-prev ()
+  "Switch to previous tab."
+  (interactive)
+  (let ((prev (- (perspeen-tab-get-current-tab-index) 1)))
+    (if (< prev 0)
+	(setq prev (- (length (perspeen-tab-get-tabs)) 1)))
+    (perspeen-tab-switch-internal prev)))
 
 
 (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
@@ -102,7 +118,9 @@ window-configuration and point-mark"))
 		  (t face1))
 	    face-list))
     
-    (setf (nth (- (length (perspeen-tab-get-tabs)) (perspeen-tab-get-current-tab-index) 1) face-list)
+    ;; (setf (nth (- (length (perspeen-tab-get-tabs)) (perspeen-tab-get-current-tab-index) 1) face-list)
+    ;; 	  selected-face)
+    (setf (nth (perspeen-tab-get-current-tab-index) face-list)
 	  selected-face)
     
     (dolist (tab (perspeen-tab-get-tabs))
@@ -159,7 +177,7 @@ window-configuration and point-mark"))
 		    '(:eval
 		      (sd/construct-header-line)))))
 
-(sd/set-header-line-format)
+;; (sd/set-header-line-format)
 
 (add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
 
