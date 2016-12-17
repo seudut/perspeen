@@ -26,6 +26,7 @@
 ;; the same time.
 
 ;;; Code:
+(require 'perspeen-tab)
 
 (defgroup perspeen nil
   "A minor mode combining perspeen and elscreen "
@@ -37,6 +38,10 @@
 
 (defcustom perspeen-modestring-dividers '("[" "]" "|")
   "Plist of strings used to divide workspace on modeline.")
+
+(defcustom perspeen-use-tab t
+  "Enable the perspeen-tab or not."
+  :type 'boolean)
 
 (defvar perspeen-ws-before-switch-hook nil
   "Hook run before switch workspace.")
@@ -64,7 +69,7 @@
 
 (put 'perspeen-modestring 'risky-local-variable t)
 
-;;* Keymap
+ ;;* Keymap
 (defvar perspeen-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "s-c") 'perspeen-create-ws)
@@ -80,7 +85,8 @@
   (root-dir default-directory)
   (buffer-history buffer-name-history)
   (window-configuration (current-window-configuration))
-  (point-marker (point-marker)))
+  (point-marker (point-marker))
+  (tabs-configuration (make-perspeen-tab-conf)))
   
 	  
 (defun perspeen-update-mode-string ()
@@ -206,6 +212,11 @@ a comma as the prefix, the command won't change the prefix."
 	(perspeen-update-mode-string))
     (message "No %d workspace found" index)))
 
+(defun perspeen-start-tab ()
+  "Start perspeen tab"
+  (interactive)
+  (perspeen-tab-new-tab-internal))
+
 (defun perspeen-switch-ws-internal (ws)
   "Switch to another workspace. Save the old windows configuration
 and restore the new configuration."
@@ -215,12 +226,16 @@ and restore the new configuration."
       ;; save the windows configuration and point marker
       (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
       (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))
+      (when perspeen-use-tab
+	(setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration)))
       ;; set the current and last  workspace
       (setq perspeen-last-ws perspeen-current-ws)
       (setq perspeen-current-ws ws)
       ;; pop up the previous windows configuration and point marker
       (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
       (goto-char (perspeen-ws-struct-point-marker perspeen-current-ws))
+      (when perspeen-use-tab
+	(perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws)))
       (run-hooks 'perspeen-ws-after-switch-hook))))
 
 (defun perspeen-get-new-ws-name ()
@@ -254,7 +269,9 @@ and restore the new configuration."
     (delete-other-windows)
     ;; initialize the windows configuration of the new workspace
     (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-    (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
+    (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
+  (when perspeen-use-tab
+    (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))))
 
 (defun perspeen-set-ido-buffers ()
   "Change the variable `ido-temp-list' to restrict the ido buffers candidates."
@@ -290,6 +307,8 @@ and restore the new configuration."
 	;; init local variables
 	(setq perspeen-ws-list '())
 	(setq global-mode-string (or global-mode-string '("")))
+	(when perspeen-use-tab
+	  (perspeen-tab-init))
 	;; create first workspace and put in into hash
 	(perspeen-new-ws-internal)
 	;; update perspeen-modestring
@@ -298,6 +317,7 @@ and restore the new configuration."
 	  (setq global-mode-string (append global-mode-string '(perspeen-modestring))))
 	(advice-add 'switch-to-buffer :after #'perspeen-switch-to-buffer)
 	(advice-add 'display-buffer :after #'perspeen-display-buffer)
+
 	(add-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
 	
 	;; run the hooks
@@ -307,6 +327,7 @@ and restore the new configuration."
     (remove-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
     (advice-remove 'switch-to-buffer #'perspeen-switch-to-buffer)
     (advice-remove 'display-buffer #'perspeen-display-buffer)
+    (perspeen-tab-stop)
     (setq perspeen-max-ws-prefix 1)
     (setq perspeen-ws-list nil)))
 
