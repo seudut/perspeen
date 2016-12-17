@@ -76,6 +76,8 @@ window-configuration and point-mark"))
 
 (defun perspeen-tab-set-tabs-configuration (conf)
   "Set the configuration of tabs."
+  ;; (unless (perspeen-tab-get-current-tab)
+  ;;   (put (perspeen-tab-get-current-tab) 'current-buffer (current-buffer)))
   (setq perspeen-tab-configurations conf))
 
 (defun perspeen-tab-get-tabs-configuration ()
@@ -89,11 +91,6 @@ window-configuration and point-mark"))
     (put tab 'point-marker (point-marker))
     (put tab 'current-buffer (current-buffer))
     (push tab (perspeen-tab-conf-tabs perspeen-tab-configurations))))
-
-(defun perspeen-tab-create-tab ()
-  "Create a new tab."
-  (interactive)
-  (perspeen-tab-new-tab-internal))
 
 (defun perspeen-tab-switch-internal (index)
   "Switch tabs."
@@ -109,6 +106,13 @@ window-configuration and point-mark"))
     (set-window-configuration (get current-tab 'window-configuration))
     (goto-char (get current-tab 'point-marker))
     (put current-tab 'current-buffer (current-buffer))))
+
+(defun perspeen-tab-create-tab ()
+  "Create a new tab."
+  (interactive)
+  (perspeen-tab-new-tab-internal)
+  ;; (perspeen-tab-switch-internal (-  (length (perspeen-tab-get-tabs)) 1))
+  )
 
 (defun perspeen-tab-next ()
   "Switch to next tab."

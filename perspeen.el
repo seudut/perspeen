@@ -77,6 +77,7 @@
     (define-key map (kbd "s-p") 'perspeen-previous-ws)
     (define-key map (kbd "s-`") 'perspeen-goto-last-ws)
     (define-key map (kbd "s-e") 'perspeen-ws-eshell)
+    (define-key map (kbd "s-t") 'perspeen-tab-create-tab)
     map)
   "Keymap for perspeen-mode.")
 
@@ -224,18 +225,18 @@ and restore the new configuration."
     (unless (equal ws perspeen-current-ws)
       (run-hooks 'perspeen-ws-before-switch-hook)
       ;; save the windows configuration and point marker
-      (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-      (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))
-      (when perspeen-use-tab
-	(setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration)))
+      (if perspeen-use-tab
+	  (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
+	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
       ;; set the current and last  workspace
       (setq perspeen-last-ws perspeen-current-ws)
       (setq perspeen-current-ws ws)
       ;; pop up the previous windows configuration and point marker
-      (set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
-      (goto-char (perspeen-ws-struct-point-marker perspeen-current-ws))
-      (when perspeen-use-tab
-	(perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws)))
+      (if perspeen-use-tab
+	  (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
+	(set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
+	(goto-char (perspeen-ws-struct-point-marker perspeen-current-ws)))
       (run-hooks 'perspeen-ws-after-switch-hook))))
 
 (defun perspeen-get-new-ws-name ()
@@ -268,10 +269,12 @@ and restore the new configuration."
     (funcall initial-major-mode)
     (delete-other-windows)
     ;; initialize the windows configuration of the new workspace
-    (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-    (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
-  (when perspeen-use-tab
-    (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))))
+    (if perspeen-use-tab
+	(progn
+	  (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
+	  (perspeen-tab-new-tab-internal))
+      (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+      (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))))
 
 (defun perspeen-set-ido-buffers ()
   "Change the variable `ido-temp-list' to restrict the ido buffers candidates."
