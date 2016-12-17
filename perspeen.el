@@ -226,7 +226,9 @@ and restore the new configuration."
       (run-hooks 'perspeen-ws-before-switch-hook)
       ;; save the windows configuration and point marker
       (if perspeen-use-tab
-	  (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
+	  (progn
+	    (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
+	    (perspeen-tab-save-configuration))
 	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
 	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
       ;; set the current and last  workspace
@@ -234,7 +236,9 @@ and restore the new configuration."
       (setq perspeen-current-ws ws)
       ;; pop up the previous windows configuration and point marker
       (if perspeen-use-tab
-	  (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
+	  (progn
+	    (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
+	    (perspeen-tab-apply-configuration))
 	(set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
 	(goto-char (perspeen-ws-struct-point-marker perspeen-current-ws)))
       (run-hooks 'perspeen-ws-after-switch-hook))))
@@ -269,12 +273,12 @@ and restore the new configuration."
     (funcall initial-major-mode)
     (delete-other-windows)
     ;; initialize the windows configuration of the new workspace
-    (if perspeen-use-tab
-	(progn
-	  (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
-	  (perspeen-tab-new-tab-internal))
+    (unless perspeen-use-tab
       (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-      (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))))
+      (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
+  (when perspeen-use-tab
+    (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
+    (perspeen-tab-new-tab-internal)))
 
 (defun perspeen-set-ido-buffers ()
   "Change the variable `ido-temp-list' to restrict the ido buffers candidates."

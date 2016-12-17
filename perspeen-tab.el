@@ -92,6 +92,19 @@ window-configuration and point-mark"))
     (put tab 'current-buffer (current-buffer))
     (push tab (perspeen-tab-conf-tabs perspeen-tab-configurations))))
 
+(defun perspeen-tab-save-configuration ()
+  "Save the tab configuration."
+  (let ((current-tab (perspeen-tab-get-current-tab)))
+    (put current-tab 'window-configuration (current-window-configuration))
+    (put current-tab 'point-marker (point-marker))
+    (put current-tab 'current-buffer (current-buffer))))
+
+(defun perspeen-tab-apply-configuration ()
+  "Apply the tab configuration."
+  (let ((current-tab (perspeen-tab-get-current-tab)))
+    (set-window-configuration (get current-tab 'window-configuration))
+    (goto-char (get current-tab 'point-marker))))
+
 (defun perspeen-tab-switch-internal (index)
   "Switch tabs."
   (let ((current-tab (perspeen-tab-get-current-tab)))
