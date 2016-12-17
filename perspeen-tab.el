@@ -42,6 +42,13 @@
   "Powerline face 1."
   :group 'powerline)
 
+
+(defvar perspeen-tab-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "s-n") 'perspeen-tab-next)
+    map)
+  "Keymap for perspeen-tab")
+
 (make-variable-frame-local
  (defvar perspeen-tab-configurations nil
    "The configurations of all tabs.
@@ -135,14 +142,10 @@ window-configuration and point-mark"))
     (dolist (tab (perspeen-tab-get-tabs))
       (let ((current-face (pop face-list))
 	    (current-buf (get tab 'current-buffer)))
-	;; (if (eq tab (perspeen-tab-get-current-tab))
-	;;     (setq current-buf (current-buffer)))
 	(setq lhs
 	      (append lhs
 		      (list
-		       ;; (powerline-raw (format-mode-line " %b") current-face 'r)
 		       (powerline-raw (format " %s " (buffer-name current-buf)) current-face 'r)
-		       ;; (powerline-buffer-id current-face 'r)
 		       (funcall separator-left current-face (car face-list)))))))
     lhs))
 
@@ -183,7 +186,6 @@ window-configuration and point-mark"))
 
 (defun sd/set-header-line-format (&optional force)
   "Set the header line format"
-  ;; (put (perspeen-tab-get-current-tab) 'current-buffer (current-buffer))
   (if force
       (setq header-line-format
 	    '(:eval
@@ -204,14 +206,22 @@ window-configuration and point-mark"))
 
 ;;;###autoload
 
-(defun perspeen-tab-start ()
-  "Start perspeen tab."
-  (interactive)
-  (setq perspeen-tab-configurations (make-perspeen-tab-conf))
-  (add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
-  (advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
-  (advice-add 'other-window :after #'perspeen-tab-other-window)
-  (perspeen-tab-new-tab-internal))
+(define-minor-mode perspeen-tab-mode
+  "Toggle Perspeen-tab mode on or off."
+  :global t
+  :keymap perspeen-tab-mode-map
+  (if perspeen-tab-mode
+      (progn
+	(setq perspeen-tab-configurations (make-perspeen-tab-conf))
+	(add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
+	(advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
+	(advice-add 'other-window :after #'perspeen-tab-other-window)
+	(perspeen-tab-new-tab-internal))
+    (setq perspeen-tab-configurations nil)
+    (remove-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
+    (advice-remove 'switch-to-buffer #'perspeen-tab-switch-to-buffer)
+    (advice-remove 'other-window #'perspeen-tab-other-window)
+    (setq header-line-format nil)))
 
 (provide 'perspeen-tab)
 ;;; perspeen-tab.el ends here
