@@ -74,6 +74,7 @@ window-configuration and point-mark"))
   (let ((tab (make-symbol "perspeen-tab")))
     (put tab 'window-configuration (current-window-configuration))
     (put tab 'point-marker (point-marker))
+    (put tab 'current-buffer (current-buffer))
     (push tab (perspeen-tab-conf-tabs perspeen-tab-configurations))))
 
 (defun perspeen-tab-create-tab ()
@@ -87,12 +88,14 @@ window-configuration and point-mark"))
     ;; save
     (put current-tab 'window-configuration (current-window-configuration))
     (put current-tab 'point-marker (point-marker))
+    (put current-tab 'current-buffer (current-buffer))
     ;; set 
     (setf (perspeen-tab-conf-current-tab perspeen-tab-configurations) index)
     ;; pop
     (setq current-tab (perspeen-tab-get-current-tab))
     (set-window-configuration (get current-tab 'window-configuration))
-    (goto-char (get current-tab 'point-marker))))
+    (goto-char (get current-tab 'point-marker))
+    (put current-tab 'current-buffer (current-buffer))))
 
 (defun perspeen-tab-next ()
   "Switch to next tab."
@@ -127,21 +130,22 @@ window-configuration and point-mark"))
       (push (cond ((eq (car face-list) face1) inacted-face)
 		  (t face1))
 	    face-list))
-    
-    ;; (setf (nth (- (length (perspeen-tab-get-tabs)) (perspeen-tab-get-current-tab-index) 1) face-list)
-    ;; 	  selected-face)
     (setf (nth (perspeen-tab-get-current-tab-index) face-list)
 	  selected-face)
-    
     (dolist (tab (perspeen-tab-get-tabs))
-      (let ((current-face (pop face-list)))
+      (let ((current-face (pop face-list))
+	    (current-buf (get tab 'current-buffer)))
+	;; (if (eq tab (perspeen-tab-get-current-tab))
+	;;     (setq current-buf (current-buffer)))
 	(setq lhs
 	      (append lhs
 		      (list
-		       (powerline-raw (format "%s" (concat "===first buffer===" " ")) current-face 'l)
+		       ;; (powerline-raw (format-mode-line " %b") current-face 'r)
+		       (powerline-raw (format " %s " (buffer-name current-buf)) current-face 'r)
+		       ;; (powerline-buffer-id current-face 'r)
 		       (funcall separator-left current-face (car face-list)))))))
     lhs))
-	 
+
 
 (defun sd/construct-header-line ()
   "Generate header line"
@@ -157,7 +161,7 @@ window-configuration and point-mark"))
 					 (car powerline-default-separator-dir))))
 	 (lhs  (perspeen-tab-header-line-left-tabs 1 2 4))
 	 
-	  (rhs (list
+	 (rhs (list
 	       (funcall separator-right 'sssdd/powerline-inactive1 'sd/powerline-active1)
 	       (powerline-raw (format-time-string " %Y-%m-%d %I:%M %p %a ") 'sd/powerline-active1 'r))))
     
@@ -179,17 +183,24 @@ window-configuration and point-mark"))
 
 (defun sd/set-header-line-format (&optional force)
   "Set the header line format"
+  ;; (put (perspeen-tab-get-current-tab) 'current-buffer (current-buffer))
   (if force
       (setq header-line-format
-		    '(:eval
-		      (sd/construct-header-line)))
+	    '(:eval
+	      (sd/construct-header-line)))
     (setq-default header-line-format
-		    '(:eval
-		      (sd/construct-header-line)))))
+		  '(:eval
+		    (sd/construct-header-line)))))
 
-;; (sd/set-header-line-format)
+(defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord forece-same-window)
+  "Advice of switch to buffer."
+  (when buf-or-name
+    (put (perspeen-tab-get-current-tab) 'current-buffer (get-buffer buf-or-name))))
 
-(add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
+(defun perspeen-tab-other-window (count &optional all-frames)
+  "Advices of other window"
+  (when (window-live-p (selected-window))
+    (put (perspeen-tab-get-current-tab) 'current-buffer (current-buffer))))
 
 ;;;###autoload
 
@@ -197,6 +208,9 @@ window-configuration and point-mark"))
   "Start perspeen tab."
   (interactive)
   (setq perspeen-tab-configurations (make-perspeen-tab-conf))
+  (add-hook 'post-command-hook (lambda () (sd/set-header-line-format t)))
+  (advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
+  (advice-add 'other-window :after #'perspeen-tab-other-window)
   (perspeen-tab-new-tab-internal))
 
 (provide 'perspeen-tab)
