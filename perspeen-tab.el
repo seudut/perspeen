@@ -103,7 +103,8 @@ window-configuration and point-mark"))
   "Apply the tab configuration."
   (let ((current-tab (perspeen-tab-get-current-tab)))
     (set-window-configuration (get current-tab 'window-configuration))
-    (goto-char (get current-tab 'point-marker))))
+    (goto-char (get current-tab 'point-marker))
+    (put current-tab 'current-buffer (current-buffer))))
 
 (defun perspeen-tab-switch-internal (index)
   "Switch tabs."
