@@ -223,12 +223,12 @@ a comma as the prefix, the command won't change the prefix."
 and restore the new configuration."
   (when ws
     (unless (equal ws perspeen-current-ws)
-      (message (format "===before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
+      ;; (message (format "===before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
       (run-hooks 'perspeen-ws-before-switch-hook)
       ;; save the windows configuration and point marker
       (if perspeen-use-tab
 	  (progn
-	    (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
+	    ;; (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
 	    (perspeen-tab-save-configuration))
 	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
 	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
@@ -243,7 +243,7 @@ and restore the new configuration."
 	(set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
 	(goto-char (perspeen-ws-struct-point-marker perspeen-current-ws)))
       (run-hooks 'perspeen-ws-after-switch-hook)
-      (message (format "=====after=====%s=====" (symbol-plist (perspeen-tab-get-current-tab))))
+      ;; (message (format "=====after=====%s=====" (symbol-plist (perspeen-tab-get-current-tab))))
       )))
 
 (defun perspeen-get-new-ws-name ()
@@ -259,7 +259,8 @@ and restore the new configuration."
     (if (> (length perspeen-ws-list) 0)
 	(progn
 	  (perspeen-tab-save-configuration)
-	  (message (format "===new--before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))))
+	  ;; (message (format "===new--before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
+	  ))
     (add-to-list 'perspeen-ws-list new-ws t)
     (setq perspeen-last-ws perspeen-current-ws)
     (setq perspeen-current-ws new-ws))
@@ -286,7 +287,8 @@ and restore the new configuration."
   (when perspeen-use-tab
     (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
     (perspeen-tab-new-tab-internal)
-    (message (format "===new--after====%s====" (symbol-plist (perspeen-tab-get-current-tab))))))
+    ;; (message (format "===new--after====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
+    ))
 
 (defun perspeen-set-ido-buffers ()
   "Change the variable `ido-temp-list' to restrict the ido buffers candidates."
