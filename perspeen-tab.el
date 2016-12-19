@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'powerline)
+
 (defface sd/header-line-inactive
   '((t (:inherit mode-line)))
   "Face of header-line inactive")
@@ -144,6 +146,11 @@ window-configuration and point-mark"))
 	(setq prev (- (length (perspeen-tab-get-tabs)) 1)))
     (perspeen-tab-switch-internal prev)))
 
+
+;; (defun perspeen-tab-del ()
+;;   "Delete the current tab."
+;;   (interactive)
+;;   ())
 
 (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
   "Config the left of header line with tabs."
