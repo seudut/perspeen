@@ -56,17 +56,16 @@
 	    (make-variable-frame-local v))
 	list))
 
-(sd/make-variables-frame-local
- (defvar perspeen-modestring nil
-   "The string displayed on the modeline representing the perspeen-mode.")
- (defvar perspeen-ws-list nil
-   "The list storing all workspace in current frame.")
- (defvar perspeen-current-ws nil
-   "The perspeen structure with current workspace.")
- (defvar perspeen-last-ws nil
-   "The perspeen structure with last workspace.")
- (defvar perspeen-max-ws-prefix 1
-   "The prefix number of the workspace name."))
+(defvar perspeen-modestring nil
+  "The string displayed on the modeline representing the perspeen-mode.")
+(defvar perspeen-ws-list nil
+  "The list storing all workspace in current frame.")
+(defvar perspeen-current-ws nil
+  "The perspeen structure with current workspace.")
+(defvar perspeen-last-ws nil
+  "The perspeen structure with last workspace.")
+(defvar perspeen-max-ws-prefix 1
+  "The prefix number of the workspace name.")
 
 (put 'perspeen-modestring 'risky-local-variable t)
 

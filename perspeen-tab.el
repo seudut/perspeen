@@ -46,11 +46,10 @@
   "Powerline face 1."
   :group 'perspeen)
 
-(make-variable-frame-local
- (defvar perspeen-tab-configurations nil
-   "The configurations of all tabs.
+(defvar perspeen-tab-configurations nil
+  "The configurations of all tabs.
 It has all the tabs, which tab has a property list of
-window-configuration and point-mark"))
+window-configuration and point-mark")
 
 (cl-defstruct (perspeen-tab-conf)
   tabs
