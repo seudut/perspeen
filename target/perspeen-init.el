@@ -38,6 +38,7 @@
 (mapc #'byte-compile '("perspeen.el" "perspeen-tab.el"))
 
 (require 'perspeen)
-
+(setq perspeen-use-tab t)
+(perspeen-mode)
 
 ;;; perspeen-init.el ends here
