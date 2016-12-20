@@ -23,7 +23,6 @@ fi
 
 "$EMACS" -Q -batch \
          --eval "$INIT_PACKAGE_EL" \
-         -l package-lint.el \
          --eval "(setq byte-compile-error-on-warn ${ERROR_ON_WARN})" \
          -f batch-byte-compile \
 	 perspeen.el perspeen-tab.el
