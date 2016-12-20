@@ -2,7 +2,7 @@ emacs ?= emacs
 
 LOAD = -l perspeen-tab.el -l perspeen.el
 
-all:run
+all:compile
 
 compile:
 	$(emacs) -batch -l target/perspeen-init.el
