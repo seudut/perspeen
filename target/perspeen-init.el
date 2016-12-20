@@ -27,9 +27,11 @@
 (add-to-list 'load-path default-directory)
 
 (require 'package)
-(push '("melpa" . "http://melpa.org/packages") package-archives)
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
+(package-refresh-contents)
 (unless (package-installed-p 'powerline)
   (package-install 'powerline))
 
