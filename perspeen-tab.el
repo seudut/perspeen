@@ -3,6 +3,9 @@
 ;; Copyright (C) 2016  Peng Li
 
 ;; Author: Peng Li <seudut@gmail.com>
+;; URL: https://github.com/seudut/perspeen
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "25.0"))
 ;; Keywords: lisp
 
 ;; This program is free software; you can redistribute it and/or modify

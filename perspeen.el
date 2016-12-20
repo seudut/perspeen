@@ -1,8 +1,11 @@
-;;; perspeen.el --- An Emacs package for multi-workspace  -*- lexical-binding: t; -*-
+;;; perspeen.el --- An package for multi-workspace  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016  Peng Li
 
 ;; Author: Peng Li <seudut@gmail.com>
+;; URL: https://github.com/seudut/perspeen
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "25.0"))
 ;; Keywords: lisp
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -50,11 +53,11 @@
 (defvar perspeen-ws-after-switch-hook nil
   "Hook run after switch workspace.")
 
-(defun sd/make-variables-frame-local (&rest list)
-  "Make all elements in list as frame local variable"
-  (mapc (lambda (v)
-	    (make-variable-frame-local v))
-	list))
+;; (defun sd/make-variables-frame-local (&rest list)
+;;   "Make all elements in list as frame local variable"
+;;   (mapc (lambda (v)
+;; 	    (make-variable-frame-local v))
+;; 	list))
 
 (defvar perspeen-modestring nil
   "The string displayed on the modeline representing the perspeen-mode.")
