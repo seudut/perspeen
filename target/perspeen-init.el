@@ -31,6 +31,8 @@
 	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
+(setq debug-on-error t)
+
 (package-refresh-contents)
 (unless (package-installed-p 'powerline)
   (package-install 'powerline))
