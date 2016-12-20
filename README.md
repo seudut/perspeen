@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/seudut/perspeen.svg?branch=master)](https://travis-ci.org/seudut/perspeen)
+
 ## Perspeen
 This is a package for GNU Emacs in order to make it much more  convenient to work with multiple workspaces simultaneously.
 
