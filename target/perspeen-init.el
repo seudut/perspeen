@@ -28,7 +28,6 @@
 
 (require 'package)
 (push '("melpa" . "http://melpa.org/packages") package-archives)
-
 (package-initialize)
 
 (unless (package-installed-p 'powerline)
