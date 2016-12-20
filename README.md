@@ -20,6 +20,7 @@ So the name is also combined from these two package names. `persp-een`.
 ``` emacs-lisp
 (el-get-bundle seudut/perspeen
   :features perspeen
+  (setq perspeen-use-tab t)
   (perspeen-mode))
 ```
 
@@ -35,6 +36,7 @@ So the name is also combined from these two package names. `persp-een`.
 Below are the commands related to the tabs, set `perspeen-use-tab` to enable the tab
 
 + `perspeen-tab-create` - create a new tab in current workspace
++ `perspeen-tab-del` - delete current tab in current workspac
 + `perspeen-tab-next` - switch to nex tab of current  workspace
 + `perspeen-tab-prev` - switch to previous tab of current workspace
 
