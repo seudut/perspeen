@@ -28,11 +28,13 @@
 
 (defface sd/header-line-inactive
   '((t (:inherit mode-line)))
-  "Face of header-line inactive")
+  "Face of header-line inactive"
+  :group 'perspeen)
 
 (defface sd/header-line-active
   '((t (:inherit mode-line)))
-  "Face of header-line active")
+  "Face of header-line active"
+  :group 'perspeen)
 
 
 (defun sd/get-upper-left-most-window ()
@@ -42,7 +44,7 @@
 (defface sssdd/powerline-inactive1
   '((t (:background "grey11" :inherit mode-line)))
   "Powerline face 1."
-  :group 'powerline)
+  :group 'perspeen)
 
 (make-variable-frame-local
  (defvar perspeen-tab-configurations nil

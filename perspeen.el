@@ -34,7 +34,8 @@
 
 (defface perspeen-selected-face
   '((t (:weight bold :foreground "Black" :background "Red")))
-  "Face used to highlight the current perspeen workspace on the modeline.")
+  "Face used to highlight the current perspeen workspace on the modeline."
+  :group 'perspeen)
 
 (defcustom perspeen-modestring-dividers '("[" "]" "|")
   "Plist of strings used to divide workspace on modeline.")
@@ -53,7 +54,7 @@
   "Make all elements in list as frame local variable"
   (mapc (lambda (v)
 	    (make-variable-frame-local v))
-	  list))
+	list))
 
 (sd/make-variables-frame-local
  (defvar perspeen-modestring nil
