@@ -32,6 +32,12 @@ So the name is also combined from these two package names. `persp-een`.
 + `perspeen-goto-ws` -  switch workspace with a numeric prefix
 + `perspeen-ws-eshell` - start a `eshell` in current workspace
 
+Below are the commands related to the tabs, set `perspeen-use-tab` to enable the tab
+
++ `perspeen-tab-create` - create a new tab in current workspace
++ `perspeen-tab-next` - switch to nex tab of current  workspace
++ `perspeen-tab-prev` - switch to previous tab of current workspace
+
 See the screen shot below, like the `perspective`, the workspaces indicator are located on right of the mode line.
 Use `perspeen-selected-face` to change the face of the current selected workspace.
 
