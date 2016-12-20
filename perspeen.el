@@ -260,10 +260,9 @@ and restore the new configuration."
   "Create a new workspace."
   (let ((new-ws (make-perspeen-ws-struct :name (perspeen-get-new-ws-name))))
     (if (> (length perspeen-ws-list) 0)
-	(progn
-	  (perspeen-tab-save-configuration)
-	  ;; (message (format "===new--before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
-	  ))
+	(when perspeen-use-tab
+	  (perspeen-tab-save-configuration)))
+    
     (add-to-list 'perspeen-ws-list new-ws t)
     (setq perspeen-last-ws perspeen-current-ws)
     (setq perspeen-current-ws new-ws))
