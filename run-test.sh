@@ -26,4 +26,4 @@ fi
          --eval "$INIT_PACKAGE_EL" \
          --eval "(setq byte-compile-error-on-warn ${ERROR_ON_WARN})" \
          -f batch-byte-compile \
-	 perspeen.el perspeen-tab.el
+	 perspeen-tab.el perspeen.el
