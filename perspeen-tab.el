@@ -41,7 +41,7 @@
 
 
 (defun perspeen-tab--get-upper-left-most-window ()
-  "Return the upper-left most window"
+  "Return the upper-left most window."
   (window-at (frame-width) 0))
 
 (defface perspeen-tab--powerline-inactive1
@@ -60,11 +60,11 @@ window-configuration and point-mark")
   (last-tab 0))
 
 (defun perspeen-tab-get-tabs ()
-  "Get tabs in perspeen-tab-configurations"
+  "Get tabs in ‘perspeen-tab-configurations’."
   (perspeen-tab-conf-tabs perspeen-tab-configurations))
 
 (defun perspeen-tab-get-current-tab-index ()
-  "Get current tab in perspeen-tab-configurations"
+  "Get current tab in ‘perspeen-tab-configurations’."
   (perspeen-tab-conf-current-tab perspeen-tab-configurations))
 
 (defun perspeen-tab-get-current-tab ()
@@ -72,13 +72,14 @@ window-configuration and point-mark")
   (nth (perspeen-tab-get-current-tab-index) (perspeen-tab-get-tabs)))
 
 (defun perspeen-tab-set-tabs-configuration (conf)
-  "Set the configuration of tabs."
+  "Set the configuration of tabs.
+Argument CONF configuration of the tabs."
   ;; (unless (perspeen-tab-get-current-tab)
   ;;   (put (perspeen-tab-get-current-tab) 'current-buffer (current-buffer)))
   (setq perspeen-tab-configurations conf))
 
 (defun perspeen-tab-get-tabs-configuration ()
-  "Get the tabs configurations"
+  "Get the tabs configurations."
   perspeen-tab-configurations)
 
 (defun perspeen-tab-new-tab-internal ()
@@ -104,13 +105,14 @@ window-configuration and point-mark")
     (put current-tab 'current-buffer (current-buffer))))
 
 (defun perspeen-tab-switch-internal (index)
-  "Switch tabs."
+  "Switch tabs.
+Argument INDEX the index of the tab two switch."
   (let ((current-tab (perspeen-tab-get-current-tab)))
     ;; save
     (put current-tab 'window-configuration (current-window-configuration))
     (put current-tab 'point-marker (point-marker))
     (put current-tab 'current-buffer (current-buffer))
-    ;; set 
+    ;; set
     (setf (perspeen-tab-conf-current-tab perspeen-tab-configurations) index)
     ;; pop
     (setq current-tab (perspeen-tab-get-current-tab))
@@ -150,7 +152,10 @@ window-configuration and point-mark")
     (perspeen-tab-switch-internal prev)))
 
 (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
-  "Config the left of header line with tabs."
+  "Config the left of header line with tabs.
+Argument TAB-SEPARATOR the tab separator.
+Argument SELECTED-FACE the face of selected tab.
+Argument OTHER-FACE the face of un-selected tabs."
   (let ((lhs nil)
 	(separator-left (intern (format "powerline-%s-%s"
 					(powerline-current-separator)
@@ -179,7 +184,7 @@ window-configuration and point-mark")
 
 
 (defun perspeen-tab--construct-header-line ()
-  "Generate header line"
+  "Generate header line."
   (let* ((active (powerline-selected-window-active))
 	 (first-window (frame-first-window))
 	 (top-right-window (perspeen-tab--get-upper-left-most-window))
@@ -213,7 +218,8 @@ window-configuration and point-mark")
 	   nil))))
 
 (defun perspeen-tab--set-header-line-format (&optional force)
-  "Set the header line format"
+  "Set the header line format.
+Optional argument FORCE force or not to set the header line."
   (if force
       (setq header-line-format
 	    '(:eval
@@ -223,12 +229,17 @@ window-configuration and point-mark")
 		    (perspeen-tab--construct-header-line)))))
 
 (defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord forece-same-window)
-  "Advice of switch to buffer."
+  "Advice of switch to buffer.
+Argument BUF-OR-NAME buffer or name.
+Optional argument NORECORD no record.
+Optional argument FORECE-SAME-WINDOW force the same window."
   (when buf-or-name
     (put (perspeen-tab-get-current-tab) 'current-buffer (get-buffer buf-or-name))))
 
 (defun perspeen-tab-other-window (count &optional all-frames)
-  "Advices of other window"
+  "Advices of other window.
+Argument COUNT count argument of other window.
+Optional argument ALL-FRAMES same as other window."
   (when (window-live-p (selected-window))
     (put (perspeen-tab-get-current-tab) 'current-buffer (current-buffer))))
 
@@ -243,13 +254,13 @@ window-configuration and point-mark")
 ;;;###autoload
 
 (defun perspeen-tab-start ()
-  "Start perspeen-tab "
+  "Start perspeen-tab."
   (interactive)
   (setq perspeen-tab-configurations (make-perspeen-tab-conf))
   (perspeen-tab-init))
 
 (defun perspeen-tab-stop ()
-  "Stop perspeen-tab"
+  "Stop perspeen-tab."
   (interactive)
   (setq perspeen-tab-configurations nil)
   (remove-hook 'post-command-hook (lambda () (perspeen-tab--set-header-line-format t)))

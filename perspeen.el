@@ -24,7 +24,7 @@
 ;;; Commentary:
 
 ;; This package is intended to combine perspective and elscreen, make each workspace
-;; has its own buffers window-configuration and tabs. The goal is to make Emacs much
+;; has its own buffers window-configuration and tabs.  The goal is to make Emacs much
 ;; convenient to work with multiple workspaces at the same time.
 ;; the same time.
 
@@ -60,7 +60,7 @@
 ;; 	list))
 
 (defvar perspeen-modestring nil
-  "The string displayed on the modeline representing the perspeen-mode.")
+  "The string displayed on the modeline representing the variable `perspeen-mode'.")
 (defvar perspeen-ws-list nil
   "The list storing all workspace in current frame.")
 (defvar perspeen-current-ws nil
@@ -82,7 +82,7 @@
     (define-key map (kbd "s-e") 'perspeen-ws-eshell)
     (define-key map (kbd "s-t") 'perspeen-tab-create-tab)
     map)
-  "Keymap for perspeen-mode.")
+  "Keymap for variable `perspeen-mode'.")
 
 (cl-defstruct (perspeen-ws-struct)
   name buffers killed local-variables
@@ -127,7 +127,8 @@
   (perspeen-update-mode-string))
 
 (defun perspeen-rename-ws (name)
-  "Rename the current workspace. The workspace name begin with a number and
+  "Rename the current workspace.
+The workspace NAME begin with a number and
 a comma as the prefix, the command won't change the prefix."
   (interactive
    (list (read-string "Enter the new name: ")))
@@ -138,7 +139,8 @@ a comma as the prefix, the command won't change the prefix."
   (perspeen-update-mode-string))
 
 (defun perspeen-ws-eshell (&optional arg)
-  "Create or switch to eshell buffer with current workspace root directory."
+  "Create or switch to eshell buffer with current workspace root directory.
+Optional argument ARG argument."
   (interactive)
   (let* ((ebufs)
 	 (dir-name (car (last (split-string (perspeen-ws-struct-root-dir perspeen-current-ws)
@@ -166,7 +168,8 @@ a comma as the prefix, the command won't change the prefix."
 	(push (current-buffer) (perspeen-ws-struct-buffers perspeen-current-ws))))))
 
 (defun perspeen-change-root-dir (dir)
-  "Change the root direcoty of current workspace."
+  "Change the root direcoty of current workspace.
+Argument DIR directory."
   (interactive
    (list (read-directory-name "Inpu Dir: " default-directory)))
   (setq dir (directory-file-name dir))
@@ -207,7 +210,7 @@ a comma as the prefix, the command won't change the prefix."
     (perspeen-update-mode-string)))
 
 (defun perspeen-goto-ws (index)
-  "Switch to the index workspace. Index is a numeric argument."
+  "Switch to the INDEX workspace.  Index is a numeric argument."
   (interactive "p")
   (if (and (<= index (length perspeen-ws-list))
 	   (> index 0))
@@ -217,13 +220,14 @@ a comma as the prefix, the command won't change the prefix."
     (message "No %d workspace found" index)))
 
 (defun perspeen-start-tab ()
-  "Start perspeen tab"
+  "Start perspeen tab."
   (interactive)
   (perspeen-tab-new-tab-internal))
 
 (defun perspeen-switch-ws-internal (ws)
-  "Switch to another workspace. Save the old windows configuration
-and restore the new configuration."
+  "Switch to another workspace.
+Save the old windows configuration and restore the new configuration.
+Argument WS the workspace to swith to."
   (when ws
     (unless (equal ws perspeen-current-ws)
       ;; (message (format "===before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
@@ -305,13 +309,20 @@ and restore the new configuration."
 
 
 (defun perspeen-switch-to-buffer (buf-or-name &optional norecord force-same-window)
-  "Advice of switch to buffer, add the new buffer to the buffer list of current workspace."
+  "Advice of switch to buffer.
+To add the new buffer to the buffer list of current
+workspace.  Argument BUF-OR-NAME buffer name or buffer.
+Optional argument NORECORD norecord.
+Optional argument FORCE-SAME-WINDOW force the same window."
   (when buf-or-name
     (unless (memq (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
       (push (get-buffer buf-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
 
 (defun perspeen-display-buffer (buffer-or-name &optional action frame)
-  "Advice of display buffer, add it to the buffer list of current workspace."
+  "Advice of display buffer, add it to the buffer list of current workspace.
+Argument BUFFER-OR-NAME buffer.
+Optional argument ACTION action.
+Optional argument FRAME the frame."
   (when buffer-or-name
     (unless (memq (get-buffer buffer-or-name) (perspeen-ws-struct-buffers perspeen-current-ws))
       (push (get-buffer buffer-or-name) (perspeen-ws-struct-buffers perspeen-current-ws)))))
