@@ -38,7 +38,16 @@
 (mapc #'byte-compile '("perspeen.el" "perspeen-tab.el"))
 
 (require 'perspeen)
+
+;; set use-tab as true and enable perspeen-mode
 (setq perspeen-use-tab t)
+(perspeen-mode)
+
+;; disable perspeen-mode
+(perspeen-mode)
+
+;; set use-tab as nil  and enable perspeen-mode
+(setq perspeen-use-tab nil)
 (perspeen-mode)
 
 ;;; perspeen-init.el ends here
