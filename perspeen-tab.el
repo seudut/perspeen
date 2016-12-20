@@ -44,15 +44,6 @@
   "Powerline face 1."
   :group 'powerline)
 
-
-;; (defvar perspeen-tab-mode-map
-;;   (let ((map (make-sparse-keymap)))
-;;     (define-key map (kbd "s-n") 'perspeen-tab-next)
-;;     (define-key map (kbd "s-c") 'perspeen-tab-next)
-;;     (define-key map (kbd "s-p") 'perspeen-tab-prev)
-;;     map)
-;;   "Keymap for perspeen-tab")
-
 (make-variable-frame-local
  (defvar perspeen-tab-configurations nil
    "The configurations of all tabs.
@@ -130,6 +121,14 @@ window-configuration and point-mark"))
   ;; (perspeen-tab-switch-internal (-  (length (perspeen-tab-get-tabs)) 1))
   )
 
+(defun perspeen-tab-del ()
+  "Delete current tab."
+  (interactive)
+  (let ((current-tab (perspeen-tab-get-current-tab)))
+    (when (> (length (perspeen-tab-get-tabs)) 1)
+      (perspeen-tab-prev)
+      (delq current-tab (perspeen-tab-conf-tabs perspeen-tab-configurations)))))
+
 (defun perspeen-tab-next ()
   "Switch to next tab."
   (interactive)
@@ -145,12 +144,6 @@ window-configuration and point-mark"))
     (if (< prev 0)
 	(setq prev (- (length (perspeen-tab-get-tabs)) 1)))
     (perspeen-tab-switch-internal prev)))
-
-
-;; (defun perspeen-tab-del ()
-;;   "Delete the current tab."
-;;   (interactive)
-;;   ())
 
 (defun perspeen-tab-header-line-left-tabs (tab-separator selected-face other-face)
   "Config the left of header line with tabs."

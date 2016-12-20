@@ -39,7 +39,7 @@
 (defcustom perspeen-modestring-dividers '("[" "]" "|")
   "Plist of strings used to divide workspace on modeline.")
 
-(defcustom perspeen-use-tab t
+(defcustom perspeen-use-tab nil
   "Enable the perspeen-tab or not."
   :type 'boolean)
 
