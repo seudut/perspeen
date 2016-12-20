@@ -26,6 +26,7 @@
 
 (add-to-list 'load-path default-directory)
 
+(require 'package)
 (push '("melpa" . "http://melpa.org/packages") package-archives)
 
 (package-initialize)
