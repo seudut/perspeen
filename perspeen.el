@@ -41,23 +41,19 @@
   :group 'perspeen)
 
 (defcustom perspeen-modestring-dividers '("[" "]" "|")
-  "Plist of strings used to divide workspace on modeline.")
+  "Plist of strings used to divide workspace on modeline."
+  :group 'perspeen)
 
 (defcustom perspeen-use-tab nil
   "Enable the perspeen-tab or not."
-  :type 'boolean)
+  :type 'boolean
+  :group 'perspeen)
 
 (defvar perspeen-ws-before-switch-hook nil
   "Hook run before switch workspace.")
 
 (defvar perspeen-ws-after-switch-hook nil
   "Hook run after switch workspace.")
-
-;; (defun sd/make-variables-frame-local (&rest list)
-;;   "Make all elements in list as frame local variable"
-;;   (mapc (lambda (v)
-;; 	    (make-variable-frame-local v))
-;; 	list))
 
 (defvar perspeen-modestring nil
   "The string displayed on the modeline representing the variable `perspeen-mode'.")
@@ -72,17 +68,30 @@
 
 (put 'perspeen-modestring 'risky-local-variable t)
 
- ;;* Keymap
+;;* Keymap
+(defcustom perspeen-keymap-prefix "\C-z"
+  "Prefix key for Perspeen commands."
+  :group 'perspeen)
+
+(defvar perspeen-command-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "c") #'perspeen-create-ws)
+    (define-key map (kbd "n") #'perspeen-next-ws)
+    (define-key map (kbd "p") #'perspeen-previous-ws)
+    (define-key map (kbd "'") #'perspeen-goto-last-ws)
+    (define-key map (kbd "e") #'perspeen-ws-eshell)
+    (define-key map (kbd "t") #'perspeen-tab-create-tab)
+    map)
+  "Keymap for `perspeen-mode' after `perspeen-keymap-prefix'.")
+
+(fset 'perspeen-command-map perspeen-command-map)
+
 (defvar perspeen-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "s-c") 'perspeen-create-ws)
-    (define-key map (kbd "s-n") 'perspeen-next-ws)
-    (define-key map (kbd "s-p") 'perspeen-previous-ws)
-    (define-key map (kbd "s-`") 'perspeen-goto-last-ws)
-    (define-key map (kbd "s-e") 'perspeen-ws-eshell)
-    (define-key map (kbd "s-t") 'perspeen-tab-create-tab)
+    (define-key map perspeen-keymap-prefix 'perspeen-command-map)
     map)
-  "Keymap for variable `perspeen-mode'.")
+  "Keymap for Perspeen mode.")
+
 
 (cl-defstruct (perspeen-ws-struct)
   name buffers killed local-variables
