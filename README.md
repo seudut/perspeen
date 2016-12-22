@@ -27,17 +27,22 @@ So the name is also combined from these two package names. `persp-een`.
 ```
 
 ## How to use - Commands
+The defult prefix key of `perspeen-mode` is <kbd>C-z</kbd>. It can be changed by set the variable `perspeen-keymap-prefix`.
 
-+ `perspeen-create-ws` - default key binding <kbd>s-c</kbd> create a new workspace 
-+ `perspeen-next-ws` -  <kbd>s-n</kbd> switch next workspace
-+ `perspeen-previous-ws` -  <kbd>s-p</kbd> switch previous workspace
-+ `perspeen-goto-last-ws` -  switch to last workspace
+``` emacs-lisp
+(setq perspeen-keymap-prefix (kbd "C-c C-'"))
+```
+
++ `perspeen-create-ws` - default key binding <kbd>C-z c</kbd> create a new workspace 
++ `perspeen-next-ws` -  <kbd>C-z n</kbd> switch next workspace
++ `perspeen-previous-ws` -  <kbd>C-z p</kbd> switch previous workspace
++ `perspeen-goto-last-ws` - <kbd>C-z '</kbd> switch to last workspace
 + `perspeen-goto-ws` -  switch workspace with a numeric prefix
-+ `perspeen-ws-eshell` - start a `eshell` in current workspace
++ `perspeen-ws-eshell` - <kbd>C-z e'</kbd>  start a `eshell` in current workspace
 
 Below are the commands related to the tabs, set `perspeen-use-tab` to enable the tab
 
-+ `perspeen-tab-create` - create a new tab in current workspace
++ `perspeen-tab-create` - <kbd>C-z t</kbd> create a new tab in current workspace
 + `perspeen-tab-del` - delete current tab in current workspac
 + `perspeen-tab-next` - switch to nex tab of current  workspace
 + `perspeen-tab-prev` - switch to previous tab of current workspace
