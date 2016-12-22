@@ -27,7 +27,7 @@ So the name is also combined from these two package names. `persp-een`.
 ```
 
 ## How to use - Commands
-The defult prefix key of `perspeen-mode` is <kbd>C-z</kbd>. It can be changed by set the variable `perspeen-keymap-prefix`.
+The defult prefix key of `perspeen-mode` is <kbd>C-z</kbd>. It can be changed by set the variable `perspeen-keymap-prefix`. like this to change the prefix key as <kbd>C-c C-'</kbd>.
 
 ``` emacs-lisp
 (setq perspeen-keymap-prefix (kbd "C-c C-'"))
