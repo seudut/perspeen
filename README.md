@@ -14,6 +14,7 @@ When switch to Emacs, since I perfer the GUI Emacs, I have always been looking f
 This package is inspired from [perspective](https://github.com/nex3/perspective-el) and [elscreen](https://github.com/knu/elscreen). `perspective` is 
 good, but it has not tab-persist.  This package, `perspeen`, is intended to combine both `perspective` and `elscreen`. Make the workspace has the tab-persist feature.
 So the name is also combined from these two package names. `persp-een`.
+Compared with `perspective`, this package supports multile tab in each workspace. Each workspace has its own tab list. Compared with `elscreen`, this package support separate the buffers against the workspace.
 
 ## Install and config
 + Download the `perspeen.el`, and put it under the `load-path`
