@@ -79,6 +79,8 @@
     (define-key map (kbd "n") #'perspeen-next-ws)
     (define-key map (kbd "p") #'perspeen-previous-ws)
     (define-key map (kbd "'") #'perspeen-goto-last-ws)
+    (define-key map (kbd "k") #'perspeen-delete-ws)
+    (define-key map (kbd "r") #'perspeen-rename-ws)
     (define-key map (kbd "e") #'perspeen-ws-eshell)
     (define-key map (kbd "t") #'perspeen-tab-create-tab)
     map)
