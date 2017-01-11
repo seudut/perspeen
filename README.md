@@ -18,13 +18,27 @@ So the name is also combined from these two package names. `persp-een`.
 Compared with `perspective`, this package supports multile tab in each workspace. Each workspace has its own tab list. Compared with `elscreen`, this package support separate the buffers against the workspace.
 
 ## Install and config
-+ Download the `perspeen.el`, and put it under the `load-path`
-+ Using [el-get](https://github.com/dimitri/el-get)
+
+#### Install maunally
+Now, `perspeen` is into melpa. Using `package-install` to install this package.
+
+#### Using `el-get`
+Using package management tool [el-get](https://github.com/dimitri/el-get)
 
 ``` emacs-lisp
 (el-get-bundle seudut/perspeen
   :features perspeen
   (setq perspeen-use-tab t)
+  (perspeen-mode))
+```
+
+#### Using `use-package`
+```emacs-lisp
+(use-package perspeen
+  :ensure t
+  :init
+  (setq perspeen-use-tab t)
+  :config
   (perspeen-mode))
 ```
 
