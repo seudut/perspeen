@@ -82,6 +82,7 @@
     (define-key map (kbd "k") #'perspeen-delete-ws)
     (define-key map (kbd "r") #'perspeen-rename-ws)
     (define-key map (kbd "e") #'perspeen-ws-eshell)
+    (define-key map (kbd "d") #'perspeen-change-root-dir)
     (define-key map (kbd "t") #'perspeen-tab-create-tab)
     map)
   "Keymap for `perspeen-mode' after `perspeen-keymap-prefix'.")

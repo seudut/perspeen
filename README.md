@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/seudut/perspeen.svg?branch=master)](https://travis-ci.org/seudut/perspeen)
+[![MELPA](http://melpa.org/packages/perspeen-badge.svg)](http://melpa.org/#/perspeen)
 
 ## Perspeen
 This is a package for GNU Emacs in order to make it much more  convenient to work with multiple workspaces simultaneously.
@@ -34,12 +35,15 @@ The defult prefix key of `perspeen-mode` is <kbd>C-z</kbd>. It can be changed by
 (setq perspeen-keymap-prefix (kbd "C-c C-'"))
 ```
 
-+ `perspeen-create-ws` - default key binding <kbd>C-z c</kbd> create a new workspace 
-+ `perspeen-next-ws` -  <kbd>C-z n</kbd> switch next workspace
-+ `perspeen-previous-ws` -  <kbd>C-z p</kbd> switch previous workspace
-+ `perspeen-goto-last-ws` - <kbd>C-z '</kbd> switch to last workspace
-+ `perspeen-goto-ws` -  switch workspace with a numeric prefix
-+ `perspeen-ws-eshell` - <kbd>C-z e'</kbd>  start a `eshell` in current workspace
++ `perspeen-create-ws` - default key binding <kbd>C-z c</kbd> create a new workspace.
++ `perspeen-next-ws` -  <kbd>C-z n</kbd> switch next workspace.
++ `perspeen-previous-ws` -  <kbd>C-z p</kbd> switch previous workspace.
++ `perspeen-goto-last-ws` - <kbd>C-z '</kbd> switch to last workspace.
++ `perspeen-goto-ws` -  switch workspace with a numeric prefix.
++ `perspeen-ws-eshell` - <kbd>C-z e</kbd>  start a `eshell` in current workspace.
++ `perspeen-delete-ws` - <kbd>C-z k</kbd> kill current workspace.
++ `perspeen-rename-ws` - <kbd>C-z r</kbd> rename current workspace.
++ `perspeen-change-root-dir` -<kbd>C-z d</kbd> change the root directory of current workspace.
 
 Below are the commands related to the tabs, set `perspeen-use-tab` to enable the tab
 
