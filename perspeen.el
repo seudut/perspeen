@@ -84,10 +84,22 @@
     (define-key map (kbd "e") #'perspeen-ws-eshell)
     (define-key map (kbd "d") #'perspeen-change-root-dir)
     (define-key map (kbd "t") #'perspeen-tab-create-tab)
+    (define-key map (kbd "1") #'perspeen-ws-jump)
+    (define-key map (kbd "2") #'perspeen-ws-jump)
+    (define-key map (kbd "3") #'perspeen-ws-jump)
+    (define-key map (kbd "4") #'perspeen-ws-jump)
+    (define-key map (kbd "5") #'perspeen-ws-jump)
+    (define-key map (kbd "6") #'perspeen-ws-jump)
+    (define-key map (kbd "7") #'perspeen-ws-jump)
+    (define-key map (kbd "8") #'perspeen-ws-jump)
+    (define-key map (kbd "9") #'perspeen-ws-jump)
+    (define-key map (kbd "s") #'perspeen-goto-ws)
     map)
   "Keymap for `perspeen-mode' after `perspeen-keymap-prefix'.")
 
+
 (fset 'perspeen-command-map perspeen-command-map)
+
 
 (defvar perspeen-mode-map
   (let ((map (make-sparse-keymap)))
@@ -220,6 +232,12 @@ Argument DIR directory."
   (when perspeen-last-ws
     (perspeen-switch-ws-internal perspeen-last-ws)
     (perspeen-update-mode-string)))
+
+(defun perspeen-ws-jump ()
+  (interactive)
+  (let ((next (string-to-number (string last-command-event))))
+    (if (and (<= 0 next) (<= next 9))
+	(perspeen-goto-ws next))))
 
 (defun perspeen-goto-ws (index)
   "Switch to the INDEX workspace.  Index is a numeric argument."

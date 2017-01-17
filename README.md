@@ -58,6 +58,7 @@ The defult prefix key of `perspeen-mode` is <kbd>C-z</kbd>. It can be changed by
 + `perspeen-delete-ws` - <kbd>C-z k</kbd> kill current workspace.
 + `perspeen-rename-ws` - <kbd>C-z r</kbd> rename current workspace.
 + `perspeen-change-root-dir` -<kbd>C-z d</kbd> change the root directory of current workspace.
++ `perspeen-ws-jump` -<kbd>C-z 1..9</kbd> Switch to the specific workspace. You can also use prefix key `C-u 1..9` for `perspeen-go-ws` commands
 
 Below are the commands related to the tabs, set `perspeen-use-tab` to enable the tab
 
