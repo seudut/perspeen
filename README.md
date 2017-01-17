@@ -71,3 +71,8 @@ See the screen shot below, like the `perspective`, the workspaces indicator are 
 Use `perspeen-selected-face` to change the face of the current selected workspace.
 
 ![perspeen](./screenshot/perspeen.png)
+
+
+### Some Known Issues
++ When using `perspeen-keymap-prefix` to set a prefix key, and the prefix key you want to use is used by other plugins, you may not be  able to use `(setq perspeen-keymap-prefix (kbd "C-c C-'"))`,
+you may need to unbind the prefix first. see [issue #8](https://github.com/seudut/perspeen/issues/8).
