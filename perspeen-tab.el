@@ -23,7 +23,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -161,10 +161,10 @@ Argument OTHER-FACE the face of un-selected tabs."
 					(powerline-current-separator)
 					(car powerline-default-separator-dir))))
 	(face1 'powerline-active1)
-	(selected-face 'sd/powerline-active1)
+	(selected-face 'powerline-active1)
 	(inacted-face 'perspeen-tab--powerline-inactive1)
 	(face-list nil))
-    
+
     (push inacted-face face-list)
     (dotimes (var (length (perspeen-tab-get-tabs)))
       (push (cond ((eq (car face-list) face1) inacted-face)
@@ -196,11 +196,11 @@ Argument OTHER-FACE the face of un-selected tabs."
 					 (powerline-current-separator)
 					 (car powerline-default-separator-dir))))
 	 (lhs  (perspeen-tab-header-line-left-tabs 1 2 4))
-	 
+
 	 (rhs (list
-	       (funcall separator-right 'perspeen-tab--powerline-inactive1 'sd/powerline-active1)
-	       (powerline-raw (format-time-string " %Y-%m-%d %I:%M %p %a ") 'sd/powerline-active1 'r))))
-    
+	       (funcall separator-right 'perspeen-tab--powerline-inactive1 'powerline-active1)
+	       (powerline-raw (format-time-string " %Y-%m-%d %I:%M %p %a ") 'powerline-active1 'r))))
+
     (cond ((eq current-window first-window)
 	   (if (eq first-window top-right-window)
 	       (concat
@@ -271,4 +271,3 @@ Optional argument ALL-FRAMES same as other window."
 
 (provide 'perspeen-tab)
 ;;; perspeen-tab.el ends here
-
