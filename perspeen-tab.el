@@ -82,13 +82,26 @@ Argument CONF configuration of the tabs."
   "Get the tabs configurations."
   perspeen-tab-configurations)
 
-(defun perspeen-tab-new-tab-internal ()
-  "New tabs."
-  (let ((tab (make-symbol "perspeen-tab")))
+(defun perspeen-tab-new-tab-internal (&optional buffer marker)
+  "Create a new tab that has BUFFER and MARKER.
+And return the created tab.
+
+If the optional BUFFER is not given or nil, using the *scratch* buffer.
+If using the *scratch* buffer, MARKER set 0."
+  (let ((tab (make-symbol "perspeen-tab"))
+	(tabs (perspeen-tab-conf-tabs perspeen-tab-configurations)))
+    (unless buffer
+      (unless (dolist (b (perspeen-ws-struct-buffers perspeen-current-ws) buffer)
+		(when (string-prefix-p "*scratch*" (buffer-name b))
+		  (setq buffer b
+			marker 0)))
+	(setq buffer (current-buffer)
+	      marker (point-marker))))
     (put tab 'window-configuration (current-window-configuration))
-    (put tab 'point-marker (point-marker))
-    (put tab 'current-buffer (current-buffer))
-    (push tab (perspeen-tab-conf-tabs perspeen-tab-configurations))))
+    (put tab 'point-marker marker)
+    (put tab 'current-buffer buffer)
+    (setf (perspeen-tab-conf-tabs perspeen-tab-configurations) (append tabs (list tab)))
+    tab))
 
 (defun perspeen-tab-save-configuration ()
   "Save the tab configuration."
@@ -118,14 +131,13 @@ Argument INDEX the index of the tab two switch."
     (setq current-tab (perspeen-tab-get-current-tab))
     (set-window-configuration (get current-tab 'window-configuration))
     (goto-char (get current-tab 'point-marker))
-    (put current-tab 'current-buffer (current-buffer))))
+    (switch-to-buffer (get current-tab 'current-buffer))))
 
 (defun perspeen-tab-create-tab ()
   "Create a new tab."
   (interactive)
   (perspeen-tab-new-tab-internal)
-  ;; (perspeen-tab-switch-internal (-  (length (perspeen-tab-get-tabs)) 1))
-  )
+  (perspeen-tab-switch-internal (-  (length (perspeen-tab-get-tabs)) 1)))
 
 (defun perspeen-tab-del ()
   "Delete current tab."
@@ -160,8 +172,8 @@ Argument OTHER-FACE the face of un-selected tabs."
 	(separator-left (intern (format "powerline-%s-%s"
 					(powerline-current-separator)
 					(car powerline-default-separator-dir))))
-	(face1 'powerline-active1)
-	(selected-face 'powerline-active1)
+	(face1 'perspeen-tab--header-line-inactive)
+	(selected-face 'perspeen-tab--header-line-active)
 	(inacted-face 'perspeen-tab--powerline-inactive1)
 	(face-list nil))
 
@@ -228,13 +240,29 @@ Optional argument FORCE force or not to set the header line."
 		  '(:eval
 		    (perspeen-tab--construct-header-line)))))
 
+(defun perspeen-tab--update-current-buffer (&optional buf-or-name)
+  "Update the buffer of current perspeen-tab.
+Argument BUF-OR-NAME buffer or name."
+  (interactive)
+  (unless buf-or-name
+    (setq buf-or-name ""))
+  (let ((buf (get-buffer buf-or-name)))
+    (unless buf
+      (setq buf (current-buffer)))
+    (when buf
+      (put (perspeen-tab-get-current-tab) 'current-buffer buf))))
+
 (defun perspeen-tab-switch-to-buffer (buf-or-name &optional norecord forece-same-window)
   "Advice of switch to buffer.
 Argument BUF-OR-NAME buffer or name.
 Optional argument NORECORD no record.
 Optional argument FORECE-SAME-WINDOW force the same window."
-  (when buf-or-name
-    (put (perspeen-tab-get-current-tab) 'current-buffer (get-buffer buf-or-name))))
+  (perspeen-tab--update-current-buffer buf-or-name))
+
+(defun perspeen-tab-advice-switch-to-prev-buffer (&optional window bury-or-kill)
+  "Advice of `switch-to-prev-buffer'.
+WINDOW and BURY-OR-KILL are `switch-to-prev-buffer' options."
+  (perspeen-tab--update-current-buffer))
 
 (defun perspeen-tab-other-window (count &optional all-frames)
   "Advices of other window.
@@ -247,6 +275,7 @@ Optional argument ALL-FRAMES same as other window."
   "Init of perspeen-tab."
   (add-hook 'post-command-hook (lambda () (perspeen-tab--set-header-line-format t)))
   (advice-add 'switch-to-buffer :after #'perspeen-tab-switch-to-buffer)
+  (advice-add 'switch-to-prev-buffer :after #'perspeen-tab-advice-switch-to-prev-buffer)
   (advice-add 'other-window :after #'perspeen-tab-other-window)
   ;; (perspeen-tab-new-tab-internal)
   )
@@ -265,6 +294,7 @@ Optional argument ALL-FRAMES same as other window."
   (setq perspeen-tab-configurations nil)
   (remove-hook 'post-command-hook (lambda () (perspeen-tab--set-header-line-format t)))
   (advice-remove 'switch-to-buffer #'perspeen-tab-switch-to-buffer)
+  (advice-remove 'switch-to-prev-buffer :after #'perspeen-tab-advice-switch-to-prev-buffer)
   (advice-remove 'other-window #'perspeen-tab-other-window)
   (setq header-line-format nil))
 
