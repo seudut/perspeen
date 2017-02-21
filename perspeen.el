@@ -44,6 +44,10 @@
   "Plist of strings used to divide workspace on modeline."
   :group 'perspeen)
 
+(defcustom perspeen-workspace-default-name "ws"
+  "Default workspace's name."
+  :group 'perspeen)
+
 (defcustom perspeen-use-tab nil
   "Enable the perspeen-tab or not."
   :type 'boolean
@@ -63,8 +67,6 @@
   "The perspeen structure with current workspace.")
 (defvar perspeen-last-ws nil
   "The perspeen structure with last workspace.")
-(defvar perspeen-max-ws-prefix 1
-  "The prefix number of the workspace name.")
 
 (put 'perspeen-modestring 'risky-local-variable t)
 
@@ -115,25 +117,24 @@
   (window-configuration (current-window-configuration))
   (point-marker (point-marker))
   (tabs-configuration (make-perspeen-tab-conf)))
-  
-	  
+
+
 (defun perspeen-update-mode-string ()
   "Update `perspeen-modestring' when `perspeen-ws-list' is changed."
-  (let ((full-string))
-    (mapc (lambda (ws)
-	    (let* ((name (perspeen-ws-struct-name ws))
-		   (string-name (format "%s" name))
-		   (prop-name))
-	      (if (equal name (perspeen-ws-struct-name perspeen-current-ws))
-		  (setq prop-name (propertize string-name 'face 'perspeen-selected-face))
-		(setq prop-name (propertize string-name 'mouse-face 'mode-line-highlight)))
-	      (setq full-string (append full-string
-					(list (nth 2 perspeen-modestring-dividers) prop-name)))))
-	  perspeen-ws-list)
-    (setq full-string (cdr full-string))
-    (setq perspeen-modestring (append (list (nth 0 perspeen-modestring-dividers))
-				      full-string
-				      (list (nth 1 perspeen-modestring-dividers))))))
+  (let* ((index 1)
+	 (ws-name-list
+	  (mapcar (lambda (ws)
+		    (let* ((name (or (perspeen-ws-struct-name ws) "nil"))
+			  (label (format " %d:%s " index name)))
+		      (setq index (1+ index))
+		      (if (eq ws perspeen-current-ws)
+			  (propertize label 'face 'perspeen-selected-face)
+			(propertize label 'mouse-face 'mode-line-highlight))))
+		  perspeen-ws-list)))
+    (setq perspeen-modestring
+	  (append (list (nth 0 perspeen-modestring-dividers)
+			(mapconcat 'identity ws-name-list (nth 2 perspeen-modestring-dividers))
+			(nth 1 perspeen-modestring-dividers))))))
 
 (defun perspeen-create-ws ()
   "Create a new workspace."
@@ -156,10 +157,7 @@ The workspace NAME begin with a number and
 a comma as the prefix, the command won't change the prefix."
   (interactive
    (list (read-string "Enter the new name: ")))
-  (let ((old-name (perspeen-ws-struct-name perspeen-current-ws))
-	(new-name))
-    (setq new-name (replace-regexp-in-string ":.*$" (concat ":" name " ") old-name))
-    (setf (perspeen-ws-struct-name perspeen-current-ws) new-name))
+  (setf (perspeen-ws-struct-name perspeen-current-ws) name)
   (perspeen-update-mode-string))
 
 (defun perspeen-ws-eshell (&optional arg)
@@ -234,6 +232,8 @@ Argument DIR directory."
     (perspeen-update-mode-string)))
 
 (defun perspeen-ws-jump ()
+  "Switch to workspace that matched with number of key.
+e.x., `C-z 1' => switch to ws:1"
   (interactive)
   (let ((next (string-to-number (string last-command-event))))
     (if (and (<= 0 next) (<= next 9))
@@ -285,18 +285,14 @@ Argument WS the workspace to swith to."
 
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace."
-  (let ((name))
-    (setq name (concat " " (number-to-string perspeen-max-ws-prefix)":ws "))
-    (setq perspeen-max-ws-prefix (+ perspeen-max-ws-prefix 1))
-    name))
+  perspeen-workspace-default-name)
 
-(defun perspeen-new-ws-internal ()
-  "Create a new workspace."
-  (let ((new-ws (make-perspeen-ws-struct :name (perspeen-get-new-ws-name))))
+(defun perspeen-new-ws-internal (&optional name)
+  "Create a new workspace as NAME."
+  (let ((new-ws (make-perspeen-ws-struct :name (or name (perspeen-get-new-ws-name)))))
     (if (> (length perspeen-ws-list) 0)
 	(when perspeen-use-tab
 	  (perspeen-tab-save-configuration)))
-    
     (add-to-list 'perspeen-ws-list new-ws t)
     (setq perspeen-last-ws perspeen-current-ws)
     (setq perspeen-current-ws new-ws))
@@ -311,8 +307,8 @@ Argument WS the workspace to swith to."
 				    buf))
 				(buffer-list)))))
     ;; This is not the first workspace
-    (switch-to-buffer (concat "*scratch*<" (perspeen-ws-struct-name perspeen-current-ws) ">"))
-    (insert (concat ";; " (buffer-name) "\n\n"))
+    (switch-to-buffer (format "*scratch*<%s>" (format-time-string "%s")))
+    (insert (format ";;; %s created at %s\n\n" (buffer-name) (format-time-string "%Y-%m-%d %H:%M:%S.%N")))
     (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
     (funcall initial-major-mode)
     (delete-other-windows)
@@ -379,7 +375,7 @@ Optional argument FRAME the frame."
 	(advice-add 'display-buffer :after #'perspeen-display-buffer)
 
 	(add-hook 'ido-make-buffer-list-hook 'perspeen-set-ido-buffers)
-	
+
 	;; run the hooks
 	(run-hooks 'perspeen-mode-hook))
     ;; clear variables
@@ -388,7 +384,6 @@ Optional argument FRAME the frame."
     (advice-remove 'switch-to-buffer #'perspeen-switch-to-buffer)
     (advice-remove 'display-buffer #'perspeen-display-buffer)
     (perspeen-tab-stop)
-    (setq perspeen-max-ws-prefix 1)
     (setq perspeen-ws-list nil)))
 
 (provide 'perspeen)
