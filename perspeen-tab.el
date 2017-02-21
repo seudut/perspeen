@@ -294,7 +294,7 @@ Optional argument ALL-FRAMES same as other window."
   (setq perspeen-tab-configurations nil)
   (remove-hook 'post-command-hook (lambda () (perspeen-tab--set-header-line-format t)))
   (advice-remove 'switch-to-buffer #'perspeen-tab-switch-to-buffer)
-  (advice-remove 'switch-to-prev-buffer :after #'perspeen-tab-advice-switch-to-prev-buffer)
+  (advice-remove 'switch-to-prev-buffer #'perspeen-tab-advice-switch-to-prev-buffer)
   (advice-remove 'other-window #'perspeen-tab-other-window)
   (setq header-line-format nil))
 
