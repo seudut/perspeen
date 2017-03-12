@@ -260,15 +260,15 @@ Save the old windows configuration and restore the new configuration.
 Argument WS the workspace to swith to."
   (when ws
     (unless (equal ws perspeen-current-ws)
+      ;; (message (format "===before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
       (run-hooks 'perspeen-ws-before-switch-hook)
       ;; save the windows configuration and point marker
-      (if (> (length perspeen-ws-list) 1)
-	(if perspeen-use-tab
-	    (progn
-	      ;; (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
-	      (perspeen-tab-save-configuration))
-	  (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-	  (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
+      (if perspeen-use-tab
+	  (progn
+	    ;; (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
+	    (perspeen-tab-save-configuration))
+	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
       ;; set the current and last  workspace
       (setq perspeen-last-ws perspeen-current-ws)
       (setq perspeen-current-ws ws)
@@ -279,7 +279,9 @@ Argument WS the workspace to swith to."
 	    (perspeen-tab-apply-configuration))
 	(set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
 	(goto-char (perspeen-ws-struct-point-marker perspeen-current-ws)))
-      (run-hooks 'perspeen-ws-after-switch-hook))))
+      (run-hooks 'perspeen-ws-after-switch-hook)
+      ;; (message (format "=====after=====%s=====" (symbol-plist (perspeen-tab-get-current-tab))))
+      )))
 
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace."
@@ -292,7 +294,8 @@ Argument WS the workspace to swith to."
 	(when perspeen-use-tab
 	  (perspeen-tab-save-configuration)))
     (add-to-list 'perspeen-ws-list new-ws t)
-    (perspeen-switch-ws-internal new-ws))
+    (setq perspeen-last-ws perspeen-current-ws)
+    (setq perspeen-current-ws new-ws))
   ;; if it the first workspace, use the current buffer list
   ;; else add new scratch buffer and clear the buffers
   (if (= 1 (length perspeen-ws-list))
@@ -315,7 +318,9 @@ Argument WS the workspace to swith to."
       (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
   (when perspeen-use-tab
     (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
-    (perspeen-tab-new-tab-internal)))
+    (perspeen-tab-new-tab-internal)
+    ;; (message (format "===new--after====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
+    ))
 
 (defun perspeen-set-ido-buffers ()
   "Change the variable `ido-temp-list' to restrict the ido buffers candidates."
