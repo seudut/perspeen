@@ -262,12 +262,13 @@ Argument WS the workspace to swith to."
     (unless (equal ws perspeen-current-ws)
       (run-hooks 'perspeen-ws-before-switch-hook)
       ;; save the windows configuration and point marker
-      (if perspeen-use-tab
-	  (progn
-	    ;; (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
-	    (perspeen-tab-save-configuration))
-	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
+      (if (> (length perspeen-ws-list) 1)
+	(if perspeen-use-tab
+	    (progn
+	      ;; (setf (perspeen-ws-struct-tabs-configuration perspeen-current-ws) (perspeen-tab-get-tabs-configuration))
+	      (perspeen-tab-save-configuration))
+	  (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+	  (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
       ;; set the current and last  workspace
       (setq perspeen-last-ws perspeen-current-ws)
       (setq perspeen-current-ws ws)
