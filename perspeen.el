@@ -260,7 +260,6 @@ Save the old windows configuration and restore the new configuration.
 Argument WS the workspace to swith to."
   (when ws
     (unless (equal ws perspeen-current-ws)
-      ;; (message (format "===before====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
       (run-hooks 'perspeen-ws-before-switch-hook)
       ;; save the windows configuration and point marker
       (if perspeen-use-tab
@@ -279,9 +278,7 @@ Argument WS the workspace to swith to."
 	    (perspeen-tab-apply-configuration))
 	(set-window-configuration (perspeen-ws-struct-window-configuration perspeen-current-ws))
 	(goto-char (perspeen-ws-struct-point-marker perspeen-current-ws)))
-      (run-hooks 'perspeen-ws-after-switch-hook)
-      ;; (message (format "=====after=====%s=====" (symbol-plist (perspeen-tab-get-current-tab))))
-      )))
+      (run-hooks 'perspeen-ws-after-switch-hook))))
 
 (defun perspeen-get-new-ws-name ()
   "Generate a name for a new workspace."
@@ -290,37 +287,33 @@ Argument WS the workspace to swith to."
 (defun perspeen-new-ws-internal (&optional name)
   "Create a new workspace as NAME."
   (let ((new-ws (make-perspeen-ws-struct :name (or name (perspeen-get-new-ws-name)))))
-    (if (> (length perspeen-ws-list) 0)
-	(when perspeen-use-tab
-	  (perspeen-tab-save-configuration)))
     (add-to-list 'perspeen-ws-list new-ws t)
-    (setq perspeen-last-ws perspeen-current-ws)
-    (setq perspeen-current-ws new-ws))
-  ;; if it the first workspace, use the current buffer list
-  ;; else add new scratch buffer and clear the buffers
-  (if (= 1 (length perspeen-ws-list))
-      (progn
-	(setf (perspeen-ws-struct-buffers perspeen-current-ws)
-	      ;; remove the buffer begins with space, which are invisible
-	      (delq nil (mapcar (lambda (buf)
-				  (unless (string-match "^ " (buffer-name buf))
-				    buf))
-				(buffer-list)))))
-    ;; This is not the first workspace
-    (switch-to-buffer (format "*scratch*<%s>" (format-time-string "%s")))
-    (insert (format ";;; %s created at %s\n\n" (buffer-name) (format-time-string "%Y-%m-%d %H:%M:%S.%N")))
-    (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer) (get-buffer "*Messages*")))
-    (funcall initial-major-mode)
-    (delete-other-windows)
-    ;; initialize the windows configuration of the new workspace
-    (unless perspeen-use-tab
-      (setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
-      (setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker))))
+    ;; this is called from `perspeen-mode'
+    (if (= (length perspeen-ws-list) 1)
+	(progn
+	  ;; (add-to-list 'perspeen-ws-list new-ws t)
+	  (setf (perspeen-ws-struct-buffers new-ws)
+		(delq nil (mapcar (lambda (buf)
+				    (unless (string-match "^ " (buffer-name buf))
+				      buf))
+				  (buffer-list))))
+	  (setq perspeen-current-ws new-ws))
+      
+      ;; (add-to-list 'perspeen-ws-list new-ws t)
+      (perspeen-switch-ws-internal new-ws)
+
+      ;; This is not the first workspace
+      (switch-to-buffer (format "*scratch*<%s>" (format-time-string "%s")))
+      (insert (format ";;; %s created at %s\n\n" (buffer-name) (format-time-string "%Y-%m-%d %H:%M:%S.%N")))
+      (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer) (get-buffer "*Messages*")))
+      (funcall initial-major-mode)
+      ;; initialize the windows configuration of the new workspace
+      (unless perspeen-use-tab
+	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))))
   (when perspeen-use-tab
     (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
-    (perspeen-tab-new-tab-internal)
-    ;; (message (format "===new--after====%s====" (symbol-plist (perspeen-tab-get-current-tab))))
-    ))
+    (perspeen-tab-new-tab-internal)))
 
 (defun perspeen-set-ido-buffers ()
   "Change the variable `ido-temp-list' to restrict the ido buffers candidates."

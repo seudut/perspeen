@@ -115,9 +115,10 @@ If using the *scratch* buffer, MARKER set 0."
 (defun perspeen-tab-apply-configuration ()
   "Apply the tab configuration."
   (let ((current-tab (perspeen-tab-get-current-tab)))
-    (set-window-configuration (get current-tab 'window-configuration))
-    (goto-char (get current-tab 'point-marker))
-    (put current-tab 'current-buffer (current-buffer))))
+    (when current-tab
+	(set-window-configuration (get current-tab 'window-configuration))
+      (goto-char (get current-tab 'point-marker))
+      (put current-tab 'current-buffer (current-buffer)))))
 
 (defun perspeen-tab-switch-to-tab (tab)
   "Switch to TAB."
