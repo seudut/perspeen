@@ -309,7 +309,7 @@ Argument WS the workspace to swith to."
     ;; This is not the first workspace
     (switch-to-buffer (format "*scratch*<%s>" (format-time-string "%s")))
     (insert (format ";;; %s created at %s\n\n" (buffer-name) (format-time-string "%Y-%m-%d %H:%M:%S.%N")))
-    (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer)))
+    (setf (perspeen-ws-struct-buffers perspeen-current-ws) (list (current-buffer) (get-buffer "*Messages*")))
     (funcall initial-major-mode)
     (delete-other-windows)
     ;; initialize the windows configuration of the new workspace
