@@ -239,13 +239,16 @@ Argument OTHER-FACE the face of un-selected tabs."
 		(powerline-render lhs)
 		(powerline-fill 'perspeen-tab--powerline-inactive1 (powerline-width rhs))
 		(powerline-render rhs))
-	     (concat
-	      (powerline-render lhs)
-	      (powerline-fill 'perspeen-tab--powerline-inactive1 0))))
+       (let ((lhs-str (powerline-render lhs)))
+         (concat
+          (substring lhs-str 0 (min (length lhs-str) (window-width first-window)))
+          (powerline-fill 'perspeen-tab--powerline-inactive1 0)))))
 	  ((eq current-window top-right-window)
-	   (concat
-	    (powerline-fill 'perspeen-tab--powerline-inactive1 (powerline-width rhs))
-	    (powerline-render rhs)))
+     (let ((lhs-str (powerline-render lhs)))
+       (concat
+        (substring lhs-str (min (length lhs-str) (window-width first-window)))
+        (powerline-fill 'perspeen-tab--powerline-inactive1 (powerline-width rhs))
+        (powerline-render rhs))))
 	  (t
 	   nil))))
 
