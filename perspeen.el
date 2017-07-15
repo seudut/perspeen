@@ -155,8 +155,7 @@
   "Rename the current workspace.
 The workspace NAME begin with a number and
 a comma as the prefix, the command won't change the prefix."
-  (interactive
-   (list (read-string "Enter the new name: ")))
+  (interactive (list (read-string "Enter the new name: " (perspeen-ws-struct-name perspeen-current-ws))))
   (setf (perspeen-ws-struct-name perspeen-current-ws) name)
   (perspeen-update-mode-string))
 
