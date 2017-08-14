@@ -22,6 +22,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+;; This file is for tab when `perspeen-use-tab' is enabled.
 
 ;;
 
