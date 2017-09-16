@@ -352,6 +352,7 @@ Optional argument FRAME the frame."
 (define-minor-mode perspeen-mode
   "Toggle Perspeen mode on or off."
   :global t
+  :require 'perspeen
   :keymap perspeen-mode-map
   (if perspeen-mode
       (progn
