@@ -114,8 +114,8 @@
   name buffers killed local-variables
   (root-dir default-directory)
   (buffer-history buffer-name-history)
-  (window-configuration (current-window-configuration))
-  (point-marker (point-marker))
+  (window-configuration)
+  (point-marker)
   (tabs-configuration (make-perspeen-tab-conf)))
 
 
@@ -271,6 +271,10 @@ Argument WS the workspace to swith to."
       (setq perspeen-last-ws perspeen-current-ws)
       (setq perspeen-current-ws ws)
       ;; pop up the previous windows configuration and point marker
+      (unless (perspeen-ws-struct-window-configuration perspeen-current-ws)
+	(delete-other-windows)
+	(setf (perspeen-ws-struct-window-configuration perspeen-current-ws) (current-window-configuration))
+	(setf (perspeen-ws-struct-point-marker perspeen-current-ws) (point-marker)))
       (if perspeen-use-tab
 	  (progn
 	    (perspeen-tab-set-tabs-configuration (perspeen-ws-struct-tabs-configuration perspeen-current-ws))
@@ -298,7 +302,6 @@ Argument WS the workspace to swith to."
 				  (buffer-list))))
 	  (setq perspeen-current-ws new-ws))
       
-      ;; (add-to-list 'perspeen-ws-list new-ws t)
       (perspeen-switch-ws-internal new-ws)
 
       ;; This is not the first workspace
