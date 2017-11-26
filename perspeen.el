@@ -53,6 +53,11 @@
   :type 'boolean
   :group 'perspeen)
 
+(defcustom perspeen-rename-when-change-root-dir t
+  "Rename workspace when changing root directory."
+  :type 'boolean
+  :group 'perspeen)
+
 (defvar perspeen-ws-before-switch-hook nil
   "Hook run before switch workspace.")
 
@@ -202,9 +207,10 @@ Argument DIR directory."
 	      (setq-local default-directory dir))))
 	(perspeen-ws-struct-buffers perspeen-current-ws))
   ;; rename current ws
-  (perspeen-rename-ws (car (last
+  (when perspeen-rename-when-change-root-dir
+    (perspeen-rename-ws (car (last
 			    (split-string (perspeen-ws-struct-root-dir perspeen-current-ws) "/" t))))
-  (perspeen-update-mode-string)
+     (perspeen-update-mode-string))
   (message "Root directory chagned to %s" (format dir)))
 
 (defun perspeen-next-ws ()
