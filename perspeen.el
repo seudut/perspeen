@@ -205,7 +205,7 @@ Argument DIR directory."
   (perspeen-rename-ws (car (last
 			    (split-string (perspeen-ws-struct-root-dir perspeen-current-ws) "/" t))))
   (perspeen-update-mode-string)
-  (message "Root directory chagned to %s" (format dir)))
+  (message "Root directory changed to %s" (format dir)))
 
 (defun perspeen-next-ws ()
   "Switch to next workspace."
