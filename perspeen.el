@@ -210,7 +210,7 @@ Argument DIR directory."
   (when perspeen-rename-when-change-root-dir
     (perspeen-rename-ws (car (last
 			    (split-string (perspeen-ws-struct-root-dir perspeen-current-ws) "/" t))))
-  (perspeen-update-mode-string)
+	(perspeen-update-mode-string))
   (message "Root directory changed to %s" (format dir)))
 
 
